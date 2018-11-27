@@ -1,0 +1,29 @@
+.modeButton {
+  	-fx-background-color:transparent;
+}
+
+.modeButton:hover {
+ 	-fx-background-color:#dae7f3;
+}
+
+.title {
+	-fx-font: 80px Bliss;
+}
+
+.subTitle {
+	-fx-font: 30px Bliss;
+}
+	
+
+.title_2 {
+	-fx-font: 40px Bliss;
+}
+
+.menu_items {
+	-fx-font: 20px Bliss;
+	-fx-background-color:transparent;
+}
+
+.menu_items:hover {
+	-fx-background-color:#dae7f3;
+}
