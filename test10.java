@@ -1,26 +1,17 @@
 package application;
 
-import javafx.application.Application;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Group; 
-import javafx.scene.Scene;
-import javafx.stage.Screen;
+import javafx.application.Application; 
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.*;
+import javafx.beans.property.*;
 import javafx.stage.Stage; 
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Circle; 
-import javafx.scene.text.Font; 
-import javafx.scene.text.Text;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.*;
 
-import java.io.*;
-import java.util.*;
 
-class ColLines //will contain the x and y values for the edges
-			{
-			int xs;
-			int ys;
-			int xe;
-			int ye;
-			}
 class ColCircle // will contain the x,y and rad values for the circles
 			{
 			int x;
@@ -58,9 +49,8 @@ public class test10 extends Application {
    	   //boolean matrix to check which edges have been used or not
    	   boolean[][] edgesstate = new boolean[Nvertices][Nvertices];
    	   //some weird magic
-   	   ColLines coordinates[] = null;
    	   ColCircle vertices[] = null;
-   	   coordinates = new ColLines[edges];
+   	   
    	   vertices = new ColCircle[Nvertices];
    	   
        int height = (int) stage.getWidth();
@@ -75,48 +65,50 @@ public class test10 extends Application {
    	   }
    	   //place counter
    	   int p = 0;
-   	   /* in these for loops we check which vertices are adjacent
-   	   and we put the coordinates of these vertices as a value for the
-   	   start and end for the lines */
-   	   
-   	   for(int i=0; i<Nvertices;i++){
-   	   	   for(int j =0; j<Nvertices;j++){
-   	   	   	   if(adjacency[i][j]==1 && edgesstate[i][j]==false){
-   	   	   coordinates[p] = new ColLines();
-   	   	   coordinates[p].xs = vertices[j].x;
-   	   	   coordinates[p].ys = vertices[j].y;
-   	   	   coordinates[p].xe = vertices[i].x;
-   	   	   coordinates[p].ye = vertices[i].y;
-   	   	   edgesstate[i][j] = true; //we also make the place in the edgesstate true, this means we have used this edge
-   	   	   edgesstate[j][i] = true;
-   	   	   p++;
-   	   	   	   }
-   	   	   }
-   	   }
-   	   
-      //Creating a group (? dont aks me wtf a group is)
+   	     	   
+      //Creating aroot group
       Group root = new Group();
-      //we add the lines to the group
-      for(int i=0;i<p;i++){
-      	  Line line = new Line();
-      	  line.setStartX(coordinates[i].xs); 
-          line.setStartY(coordinates[i].ys); 
-          line.setEndX(coordinates[i].xe); 
-          line.setEndY(coordinates[i].ye);
-      	  root.getChildren().add(line); 
+      
+      //make arrays to store the DoubleProperty values      
+      DoubleProperty[] startX = new SimpleDoubleProperty[Nvertices];
+      DoubleProperty[] startY = new SimpleDoubleProperty[Nvertices];
+      DoubleProperty[] endX = new SimpleDoubleProperty[Nvertices];
+      DoubleProperty[] endY = new SimpleDoubleProperty[Nvertices];
+      
+      //get the x,y values of the vertices and put them in the arrays
+      for(int i = 0; i<Nvertices;i++){
+      	startX[i] = new SimpleDoubleProperty(vertices[i].x);
+      	startY[i] = new SimpleDoubleProperty(vertices[i].y);
+      	endX[i] = new SimpleDoubleProperty(vertices[i].x);
+      	endY[i] = new SimpleDoubleProperty(vertices[i].y);
       }
-      //we add the vertices/nodes and text to the group
+      
+      //make an array to put the dragNodes in, these will be the vertices
+      dragNode[] arr = new dragNode[Nvertices];
+      
+      //make the dragNodes
+      for(int i = 0; i<Nvertices;i++){
+    	  arr[i] = new dragNode(Color.LIGHTSEAGREEN,startX[i],startY[i],20);
+      }
+      
+      //mane an array to put the Boundes Lines in
+       Line[] lines = new fixedLine[edges];
+       
+       //make all the lines
       for(int i=0;i<Nvertices;i++){
-      Text text = new Text();
-      text.setFont(new Font(30));
-      text.setX(vertices[i].x-10); 
-      text.setY(vertices[i].y+10);
-      //text.setText(String.valueOf(i));
-      Circle circle = new Circle(vertices[i].x,vertices[i].y,vertices[i].rad); //x,y,radius
-      circle.setFill(javafx.scene.paint.Color.RED);
-      root.getChildren().add(circle); 
-      root.getChildren().add(text);
-      } 
+      	for(int j =0; j<Nvertices;j++){
+      		if(adjacency[i][j]==1 && edgesstate[i][j]==false){
+      			lines[p] = new fixedLine(startX[i], startY[i], startX[j], startY[j]);
+      			p++;
+      			edgesstate[i][j] = true; //we also make the place in the edgesstate true, this means we have used this edge
+      			edgesstate[j][i] = true;
+      		}
+      	}
+      }
+      
+      //add the arrays to the group
+      root.getChildren().addAll(arr);
+      root.getChildren().addAll(lines);
       
       //Creating a scene object 
       Scene scene = new Scene(root, width, height);  
@@ -133,4 +125,79 @@ public class test10 extends Application {
    public static ColCircle[] getColCircle() {
 	   return vertices;
    }
+   class fixedLine extends Line {
+	      fixedLine(DoubleProperty startX, DoubleProperty startY, DoubleProperty endX, DoubleProperty endY) {
+	      startXProperty().bind(startX);
+	      startYProperty().bind(startY);
+	      endXProperty().bind(endX);
+	      endYProperty().bind(endY);
+	      setStrokeWidth(2);
+	      setStroke(Color.GRAY.deriveColor(0, 1, 1, 0.5));
+	      setStrokeLineCap(StrokeLineCap.ROUND);
+	      getStrokeDashArray().setAll(10.0, 5.0);
+	      setMouseTransparent(true);
+	    }
+	  }
+
+	  // a draggable dragNode displayed around a point.
+	  class dragNode extends Circle { 
+	      dragNode(Color color, DoubleProperty x, DoubleProperty y, double rad) {
+	      super(x.get(), y.get(), rad);
+	      setFill(color.deriveColor(1, 1, 1, 0.5));
+	      setStroke(color);
+	      setStrokeWidth(2);
+	      setStrokeType(StrokeType.OUTSIDE);
+	      x.bind(centerXProperty());
+	      y.bind(centerYProperty());
+	      enableDrag();
+	    }
+
+	    // make a node movable by dragging it around with the mouse.
+	    private void enableDrag() {
+	      final Delta dragDelta = new Delta();
+	      //action to perform if mouse gets pressed
+	      setOnMousePressed(new EventHandler<MouseEvent>() {
+	        @Override public void handle(MouseEvent mouseEvent) {
+	          // record a delta distance for the drag and drop operation.
+	          dragDelta.x = getCenterX() - mouseEvent.getX();
+	          dragDelta.y = getCenterY() - mouseEvent.getY();
+	          getScene().setCursor(Cursor.MOVE);
+	        }
+	      });
+	      setOnMouseReleased(new EventHandler<MouseEvent>() {
+	        @Override public void handle(MouseEvent mouseEvent) {
+	          getScene().setCursor(Cursor.HAND);
+	        }
+	      });
+	      setOnMouseDragged(new EventHandler<MouseEvent>() {
+	        @Override public void handle(MouseEvent mouseEvent) {
+	          double newX = mouseEvent.getX() + dragDelta.x;
+	          if (newX > 0 && newX < getScene().getWidth()) {
+	            setCenterX(newX);
+	          }  
+	          double newY = mouseEvent.getY() + dragDelta.y;
+	          if (newY > 0 && newY < getScene().getHeight()) {
+	            setCenterY(newY);
+	          }
+	        }
+	      });
+	      //action if mouse hovers over a node
+	      setOnMouseEntered(new EventHandler<MouseEvent>() {
+	        @Override public void handle(MouseEvent mouseEvent) {
+	          if (!mouseEvent.isPrimaryButtonDown()) {
+	            getScene().setCursor(Cursor.HAND);
+	          }
+	        }
+	      });
+	      //action if mouse doesnt hover over a node
+	      setOnMouseExited(new EventHandler<MouseEvent>() {
+	        @Override public void handle(MouseEvent mouseEvent) {
+	          if (!mouseEvent.isPrimaryButtonDown()) {
+	            getScene().setCursor(Cursor.DEFAULT);
+	          }
+	        }
+	      });
+	    }
+	    private class Delta { double x, y; }
+	  }
 }
