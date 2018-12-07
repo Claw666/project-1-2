@@ -7,8 +7,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.*;
 import javafx.scene.control.Label;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.stage.Screen;
 import javafx.stage.Stage; 
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Circle; 
@@ -17,6 +17,7 @@ import javafx.scene.shape.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 
 import java.util.HashSet;
 
@@ -25,10 +26,12 @@ import javafx.event.ActionEvent;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.text.Text;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+
 import java.util.Random;
 
 class ColCircle // will contain the x,y and rad values for the circles
@@ -60,6 +63,7 @@ public class test10 extends Application {
    private Label Win;
    private  Color [] color;
    private int pressed;
+   private ToggleButton[] togle;
 
 /*	
    //constructor for a file
@@ -79,70 +83,63 @@ public class test10 extends Application {
    
    public void start(Stage stage) { 
 	   
-	   VBox layout2=new VBox(10);
-	   BorderPane layout=new BorderPane();
-	   layout.setRight(layout2);
-	   Group c=new Group();
+	   VBox menuBar = new VBox();
+	   BorderPane menuBarAlignment = new BorderPane();
+	   menuBar.getChildren().addAll(menuBarAlignment);
+	   menuBar.setAlignment(Pos.BOTTOM_CENTER);
+	   menuBar.setStyle("-fx-background-color: #e5e5e5;");
+	   menuBar.setMinWidth(300);
 	   
-	   color=new Color[CN];
+	   VBox colorleft = new VBox(8);
+	   VBox colorright = new VBox(8);
+	   
+	   HBox colorCont = new HBox(8);
+	   colorCont.setAlignment(Pos.TOP_CENTER);
+	   menuBarAlignment.setTop(colorCont);
+	   colorCont.setPadding(new Insets(50,50,50,50));
+	   
+	   VBox subMenus = new VBox();
+	   menuBarAlignment.setBottom(subMenus);
+	   BorderPane layoutAlignment = new BorderPane();
+	   
+	   
+	   color=new Color[12];
 	   Random RND = new Random();
-	   for(int i=0; i<CN; i++) {
+	   for(int i=0; i<12; i++) {
 		   int red = RND.nextInt(13)*20;
 		   int green = RND.nextInt(13)*20;
 		   int blue = RND.nextInt(13)*20;
 		   Color colo = Color.rgb(red, green, blue);
 		   color[i] = colo;
 	   }
-	   //Creating array to store colors
-/*	   Color[] color=new Color[10];
-	   color[0]=Color.BLUE;
-	   color[1]=Color.GREEN;
-	   color[2]=Color.YELLOW;
-	   color[3]=Color.BLACK;
-	   color[4]=Color.PINK;
-	   color[5]=Color.ORANGE;
-	   color[6]=Color.AQUA;
-	   color[7]=Color.CHOCOLATE;
-	   color[8]=Color.GREY;
-	   color[9]=Color.CRIMSON;
-	   String[] name=new String[10];
-	   //Creating Array to strore name
-	   name[0]="BLUE";
-	   name[1]="GREEN";
-	   name[2]="YELLOW";
-	   name[3]="BLACK";
-	   name[4]="PINK";
-	   name[5]="ORANGE";
-	   name[6]="AQUA";
-	   name[7]="CHOCOLATE";
-	   name[8]="GREY";
-	   name[9]="CRIMSON";
-	   */
-	   tg=new ToggleGroup();
+	   
+	   tg = new ToggleGroup();
+	   togle=new ToggleButton[color.length];
 		 //Creatubg toggle buttons for the collers based on the chromatic number
-		 for(int i=0; i<CN; i++){
-	
-			 //ToggleButton togle=new ToggleButton(name[i]);
-			 ToggleButton togle=new ToggleButton();
-			 if (i==0) togle.setSelected(true);
+		 for(int i=0; i<12; i++){
+			 
+			 togle[i]=new ToggleButton();
+			 if (i==0) togle[0].setSelected(true);
 			 
 			 //Give the togle userData
-			 togle.setUserData(color[i]);
+			 togle[i].setUserData(color[i]);
 			 //add the togle to the group
-			 togle.setToggleGroup(tg);
+			 togle[i].setToggleGroup(tg);
 			 //togle.setStyle("-fx-base: "+name[i]);
-			 String colo = color[i].toString();
-			 String colo2 = colo.substring(2);
-			 //colo2 = isOn ? OFF_COLOR : ON_COLOR;
-			 System.out.println(colo2);
-			 togle.setStyle("-fx-background-color: #"+colo2);
-			 togle.setMaxSize(90, 90);
-			 togle.setMinSize(90,90);
-			 togle.setTranslateX(stage.getWidth()-150);
-			 //add the group to the layout
-			 layout2.getChildren().add(togle);
+			 
+			 String colo2 = color[i].toString().substring(2);
+			 togle[i].setStyle("-fx-background-color: #"+colo2);
+
+			 togle[i].setMinSize(90,90);
+			 if(i<6) {
+					colorright.getChildren().add(togle[i]);
+				}
+				else {
+					colorleft.getChildren().add(togle[i]);
+				}
 		 }
-	   
+		 colorCont.getChildren().addAll(colorleft,colorright);
+		
 	   
    	   //boolean matrix to check which edges have been used or not
    	   boolean[][] edgesstate = new boolean[Nvertices][Nvertices];
@@ -161,12 +158,7 @@ public class test10 extends Application {
    	   	   vertices[i] = new ColCircle();
    	   	   vertices[i].x = (int)(height/3.0*Math.cos(i*angle)+width/3.0);
    	   	   vertices[i].y = (int)(height/3.0*Math.sin(i*angle)+height/2.0);
-   	   }
-   	   //place counter
-   	   int p = 0;
-   	     	   
-      //Creating a root group
-      Group root = new Group();
+   	   }   	     	   
       
       //make arrays to store the DoubleProperty values      
       DoubleProperty[] startX = new SimpleDoubleProperty[Nvertices];
@@ -193,6 +185,9 @@ public class test10 extends Application {
       //mane an array to put the Boundes Lines in
        lines = new fixedLine[edges];
        
+       //place counter
+   	   int p = 0;
+   	   
        //make all the lines
       for(int i=0;i<Nvertices;i++){
       	for(int j =0; j<Nvertices;j++){
@@ -205,9 +200,7 @@ public class test10 extends Application {
       	}
       }
       
-      Button btnNext = new Button("Next");
-      btnNext.setTranslateX(20);
-      btnNext.setTranslateY(stage.getHeight()-100);
+      Button btnNext = new Button("NEXT");
       btnNext.setOnAction(
               new EventHandler<ActionEvent>() {
                   @Override
@@ -221,10 +214,8 @@ public class test10 extends Application {
                   }
 				});
       
-      hint = new ToggleButton("Hint");
+      hint = new ToggleButton("HINT");
       hint.setStyle("-fx-background-color: #D3D3D3");
-      hint.setTranslateX(20);
-      hint.setTranslateY(20);
       hint.setSelected(false);
       hint.setOnAction(
               new EventHandler<ActionEvent>() {
@@ -243,12 +234,8 @@ public class test10 extends Application {
                   }
               });
       TextField Input = new TextField();
-      Input.setTranslateX(20);
-	  Input.setTranslateY(stage.getHeight()-400);
 	  
       Button BackTrack = new Button("Solve it");
-      BackTrack.setTranslateX(20);
-      BackTrack.setTranslateY(stage.getHeight()-500);
 		 BackTrack.setOnAction(new EventHandler<ActionEvent>() {
 			    @Override public void handle(ActionEvent e) {
 			       // greedy();
@@ -259,47 +246,100 @@ public class test10 extends Application {
 	        		//checkedges();
 			    }
 			});
- /*     
-      Button btnBack = new Button("Home");
-      btnBack.setTranslateX(20);
-      btnBack.setTranslateY(50);
+ 
+      Button btnBack = new Button("BACK");
       btnBack.setOnAction(
               new EventHandler<ActionEvent>() {
                   @Override
                   public void handle(final ActionEvent e) {
-      					//Main home = new Main();
-                    // 	home.start(stage);
-                	  String[] args = {};
-                     	Main.main(null);;
+                	  Main homePage = new Main();
+                	  try {
+						homePage.start(stage);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
                   }
 				});
-      //->not working
-      */
+      
+      Button colourDelete = new Button("MINIMIZE COLOURS");
+      colourDelete.setStyle("-fx-background-color: #D3D3D3");
+      colourDelete.setOnAction(
+              new EventHandler<ActionEvent>() {
+                  @Override
+                  public void handle(final ActionEvent e) {
+      					for(int i = color.length-1;i>=CN;i--)
+      						togle[i].setVisible(false);
+                  }
+				});
       
       Win = new Label();
       Win.setFont(new Font("Arial",150));
       Win.setTextFill(Color.GREEN);
-
       
-      //add the arrays to the gro up
-      root.getChildren().add(layout);
+      //Creating a root group
+      Group root = new Group();
+      
+      //add the arrays to the group
       root.getChildren().addAll(lines);
       root.getChildren().addAll(arr);
-      root.getChildren().add(btnNext);
-      root.getChildren().add(hint);
       root.getChildren().add(Win);
-      root.getChildren().add(BackTrack);
-      root.getChildren().add(Input);
- //     root.getChildren().add(btnBack);
+      layoutAlignment.setRight(menuBar);
+      layoutAlignment.setCenter(root);
+      
+      Text currentColorText = new Text("CURRENT COLOUR");
+      
+      VBox curColCont = new VBox();
+      curColCont.setAlignment(Pos.CENTER);
+      curColCont.setPadding(new Insets(10,50,10,50));
+      curColCont.setPrefHeight(70);
+      
+      HBox curCol = new HBox();
+      //curCol.setStyle("-fx-background-color: #" + (Color)tg.getSelectedToggle().getUserData());
+      //System.out.println((Color)tg.getSelectedToggle().getUserData());
+      curCol.setPrefSize(100, 50);
+      curColCont.getChildren().addAll(currentColorText, curCol);
+      
+      
+      
+      HBox nextBtnCont = new HBox();
+      nextBtnCont.getChildren().addAll(btnNext,btnBack);
+      nextBtnCont.setPrefHeight(100);
+      nextBtnCont.setAlignment(Pos.CENTER_LEFT);
+      nextBtnCont.setPadding(new Insets(50,50,50,50));
+      nextBtnCont.setSpacing(50);
+      nextBtnCont.setStyle("-fx-background-color: #D3D3D3;");
+      
+      HBox hintCont = new HBox();
+      hintCont.getChildren().addAll(hint,colourDelete);
+      hintCont.setPrefHeight(70);
+      hintCont.setAlignment(Pos.CENTER_LEFT);
+      hintCont.setSpacing(50);
+      hintCont.setPadding(new Insets(10,50,10,50));
+      
+      HBox solveCont = new HBox();
+      solveCont.getChildren().addAll(BackTrack,Input);
+      solveCont.setPrefHeight(70);
+      solveCont.setAlignment(Pos.CENTER_LEFT);
+      solveCont.setPadding(new Insets(10,50,10,50));
+      solveCont.setStyle("-fx-background-color: #D3D3D3;");
+      
+      subMenus.getChildren().addAll(curColCont, solveCont, hintCont,nextBtnCont);
       
       //Creating a scene object 
-      Scene scene = new Scene(root, width, height);  
-      
+      Scene scene = new Scene(layoutAlignment);  
+      scene.getStylesheets().add("application/Main.css");
       //Setting title to the Stage )
       stage.setTitle("graph from matrix");
       
       //Adding scene to the stage 
       stage.setScene(scene);
+      
+      Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+      //set Stage boundaries to visible bounds of the main screen
+      stage.setX(primaryScreenBounds.getMinX());
+      stage.setY(primaryScreenBounds.getMinY());
+      stage.setWidth(primaryScreenBounds.getWidth());
+      stage.setHeight(primaryScreenBounds.getHeight());
       
       //Displaying the contents of the stage 
       stage.show();         
