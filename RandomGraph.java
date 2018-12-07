@@ -17,8 +17,9 @@ public class RandomGraph {
 	}
 	
 	public RandomGraph(){
-		vertices = (int) (Math.random()*100);
-		edges = (int) (Math.random()*100);
+		Random rnd = new Random();
+		vertices = rnd.nextInt(30);
+		edges = rnd.nextInt((int)(vertices*(vertices-1)/2));
 	}
 	
 	public int[][] createMatrix(){
@@ -48,6 +49,13 @@ public class RandomGraph {
 		}
 	//	doc(Matrix);
 		return Matrix;
+	}
+	
+	public int getEdges() {
+		return edges;
+	}
+	public int getVertices() {
+		return vertices;
 	}
 	
 	public void doc(int[][] m){

@@ -22,8 +22,15 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.IOException;
 import javafx.event.ActionEvent;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 public class Main extends Application {
+    
+    private int[][] adjacency;
+    private int numberofEdges;
+    private int numberofVertices;
+    
   @Override
   public void start(Stage primaryStage) throws Exception {
     
@@ -397,7 +404,16 @@ public class Main extends Application {
         );
         
         Label  labelEdges  = new Label();
-        Slider sliderEdges = new Slider(5, 15*14/2, 1);
+        Slider sliderEdges = new Slider(5, 10, 1);
+        sliderVertices.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                Number old_val, Number new_val) {
+                    double numVertices = sliderVertices.getValue();
+                    int max = (int) (numVertices*(numVertices-1)/2);
+                    sliderEdges.setMax(max);
+            }
+        });
+        
         sliderEdges.setBlockIncrement(1);
         sliderEdges.setMajorTickUnit(1);
         sliderEdges.setMinorTickCount(0);
@@ -416,12 +432,12 @@ public class Main extends Application {
                 new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(final ActionEvent e) {
-                       int numberofEdges = (int) sliderEdges.getValue();
-                       int numberofVertices = (int) sliderVertices.getValue();
+                       numberofEdges = (int) sliderEdges.getValue();
+                       numberofVertices = (int) sliderVertices.getValue();
                        RandomGraph randomG = new RandomGraph(numberofVertices,numberofEdges);
-                       int[][] adMatrix = randomG.createMatrix();
-                       test10 test = new test10(adMatrix,numberofVertices,numberofEdges);
-                       test.start(primaryStage);
+                       adjacency = randomG.createMatrix();
+                       preview test = new preview(adjacency,numberofVertices,numberofEdges);
+                       test.display();
                     }
                 });
         Button infoBttn = new Button("INFO");
@@ -435,11 +451,14 @@ public class Main extends Application {
                 @Override
                 public void handle(final ActionEvent e) {
                     File file = fileChooser.showOpenDialog(primaryStage);
-                    
-                    test10 test = new test10(file.getAbsolutePath());
+                    ReadGraphClass G = new ReadGraphClass(file.getAbsolutePath());
+                    adjacency = G.ReadFile();
+                    numberofEdges = G.getEdges();
+                    numberofVertices = G.getVertices();
+                    preview test = new preview(adjacency,numberofVertices,numberofEdges);
                     if (file != null) {
                        System.out.println("Name of file: " + file);
-                       test.start(primaryStage);
+                       test.display();
                     }
                 }
             });
@@ -503,7 +522,21 @@ public class Main extends Application {
         setMainCont.getChildren().addAll(settingsTitleCont, setSubTitleCont,centerSlider,centerType, backCont3);
         Scene setScene = new Scene(setMainCont);
         
-        
+        modeOneContainer.setOnMouseClicked(
+                new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if (numberofVertices>0){
+                            Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
+                            test.start(primaryStage);   
+                        }else {
+                            primaryStage.setScene(setScene);
+                            back3.setOnAction(f-> {
+                                primaryStage.setScene(scene);
+                            });
+                        }
+                    }
+                });
         
        
         
@@ -529,12 +562,15 @@ public class Main extends Application {
         });
                 
       }
-  	  private Node createSpacer() {
-  		  final Region spacer = new Region();
-  		  // Make it always grow or shrink according to the available space
-  		  HBox.setHgrow(spacer, Priority.ALWAYS);
-  		  return spacer;
-    }	
+      private Node createSpacer() {
+          final Region spacer = new Region();
+          // Make it always grow or shrink according to the available space
+          HBox.setHgrow(spacer, Priority.ALWAYS);
+          return spacer;
+      }   
+      public Main () {
+    	  
+      }
 
       public static void main(String[] args) {
         Application.launch(args);

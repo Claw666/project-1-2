@@ -27,3 +27,7 @@
 .menu_items:hover {
 	-fx-background-color:#dae7f3;
 }
+
+.highlighted {
+	-fx-padding-right: 20px;
+}
