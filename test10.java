@@ -1,6 +1,11 @@
 package application;
 
 import java.util.Set;
+
+import javafx.beans.value.ChangeListener;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application; 
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseButton;
@@ -8,8 +13,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.*;
 import javafx.scene.control.Label;
 import javafx.beans.property.*;
+import javafx.beans.value.ObservableValue;
 import javafx.stage.Screen;
-import javafx.stage.Stage; 
+import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Circle; 
 import javafx.scene.paint.Color;
@@ -21,9 +28,10 @@ import javafx.scene.layout.HBox;
 
 import java.util.HashSet;
 
-
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
-
+import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.geometry.Insets;
@@ -63,6 +71,17 @@ public class test10 extends Application {
    private Label Win;
    private  Color [] color;
    private int pressed;
+   private ToggleButton[] togle;
+   
+   
+   //Timer variables
+   private static final Integer STARTTIME = 15;
+   private Timeline timeline;
+   private Label timerLabel = new Label();
+   
+// Make timeSeconds a Property
+private IntegerProperty timeSeconds =
+        new SimpleIntegerProperty(STARTTIME);
 
 /*	
    //constructor for a file
@@ -89,19 +108,23 @@ public class test10 extends Application {
 	   menuBar.setStyle("-fx-background-color: #e5e5e5;");
 	   menuBar.setMinWidth(300);
 	   
-	   VBox colorCont = new VBox();
-	   colorCont.setAlignment(Pos.TOP_CENTER);
-	   menuBarAlignment.setTop(colorCont);
-	   colorCont.setPadding(new Insets(50,50,50,50));
+	   VBox colorleft = new VBox(8);
+	   VBox colorright = new VBox(8);
 	   
+	   HBox colorCont = new HBox(8);
+	   colorCont.setAlignment(Pos.TOP_CENTER);
+	   menuBarAlignment.setCenter(colorCont);
+	   colorCont.setPadding(new Insets(50,50,50,50));
+	   HBox timerCont = new HBox();
+	   menuBarAlignment.setTop(timerCont);
 	   VBox subMenus = new VBox();
 	   menuBarAlignment.setBottom(subMenus);
 	   BorderPane layoutAlignment = new BorderPane();
 	   
 	   
-	   color=new Color[CN];
+	   color=new Color[12];
 	   Random RND = new Random();
-	   for(int i=0; i<CN; i++) {
+	   for(int i=0; i<12; i++) {
 		   int red = RND.nextInt(13)*20;
 		   int green = RND.nextInt(13)*20;
 		   int blue = RND.nextInt(13)*20;
@@ -110,26 +133,35 @@ public class test10 extends Application {
 	   }
 	   
 	   tg = new ToggleGroup();
+	   togle=new ToggleButton[color.length];
 		 //Creatubg toggle buttons for the collers based on the chromatic number
-		 for(int i=0; i<CN; i++){
+		 for(int i=0; i<12; i++){
 			 
-			 ToggleButton togle=new ToggleButton();
-			 if (i==0) togle.setSelected(true);
+			 togle[i]=new ToggleButton();
+			 if (i==0) togle[0].setSelected(true);
 			 
 			 //Give the togle userData
-			 togle.setUserData(color[i]);
+			 togle[i].setUserData(color[i]);
 			 //add the togle to the group
-			 togle.setToggleGroup(tg);
+			 togle[i].setToggleGroup(tg);
 			 //togle.setStyle("-fx-base: "+name[i]);
-			 String colo = color[i].toString();
-			 String colo2 = colo.substring(2);
-			 //colo2 = isOn ? OFF_COLOR : ON_COLOR;
-			 togle.setStyle("-fx-background-color: #"+colo2);
-			 togle.setMinSize(90,90);
-			 //add the group to the layout
-			 colorCont.getChildren().add(togle);
+			 
+			 String colo2 = color[i].toString().substring(2);
+			 togle[i].setStyle("-fx-background-color: #"+colo2);
+			 
+
+			 togle[i].setMinSize(90,90);
+			 if(i<6) {
+					colorright.getChildren().add(togle[i]);
+				}
+				else {
+					colorleft.getChildren().add(togle[i]);
+				}
 		 }
-		
+		 colorCont.getChildren().addAll(colorleft,colorright);
+		 
+		 
+		 
 	   
    	   //boolean matrix to check which edges have been used or not
    	   boolean[][] edgesstate = new boolean[Nvertices][Nvertices];
@@ -148,11 +180,7 @@ public class test10 extends Application {
    	   	   vertices[i] = new ColCircle();
    	   	   vertices[i].x = (int)(height/3.0*Math.cos(i*angle)+width/3.0);
    	   	   vertices[i].y = (int)(height/3.0*Math.sin(i*angle)+height/2.0);
-   	   }
-   	   //place counter
-   	   int p = 0;
-   	     	   
-      
+   	   }   	     	   
       
       //make arrays to store the DoubleProperty values      
       DoubleProperty[] startX = new SimpleDoubleProperty[Nvertices];
@@ -179,6 +207,9 @@ public class test10 extends Application {
       //mane an array to put the Boundes Lines in
        lines = new fixedLine[edges];
        
+       //place counter
+   	   int p = 0;
+   	   
        //make all the lines
       for(int i=0;i<Nvertices;i++){
       	for(int j =0; j<Nvertices;j++){
@@ -251,11 +282,41 @@ public class test10 extends Application {
 					}
                   }
 				});
-     
+      
+      Button colourDelete = new Button("MINIMIZE COLOURS");
+      colourDelete.setStyle("-fx-background-color: #D3D3D3");
+      colourDelete.setOnAction(
+              new EventHandler<ActionEvent>() {
+                  @Override
+                  public void handle(final ActionEvent e) {
+      					for(int i = color.length-1;i>=CN;i--)
+      						togle[i].setVisible(false);
+                  }
+				});
       
       Win = new Label();
       Win.setFont(new Font("Arial",150));
       Win.setTextFill(Color.GREEN);
+     
+      
+      timerLabel.setStyle("-fx-font-size: 2em;");
+      
+      timerCont.getChildren().add(timerLabel);
+      timerCont.setPrefHeight(50);
+      timerCont.setAlignment(Pos.CENTER);
+      
+      if (timeline != null) {
+          timeline.stop();
+      }
+      timeSeconds.set(STARTTIME);
+      timeline = new Timeline();
+      timeline.getKeyFrames().add(
+              new KeyFrame(Duration.seconds(STARTTIME+1),
+              new KeyValue(timeSeconds, 0)));
+      timeline.playFromStart();
+      
+   // Bind the timerLabel text property to the timeSeconds property
+      timerLabel.textProperty().bind(timeSeconds.asString());
       
       //Creating a root group
       Group root = new Group();
@@ -271,29 +332,33 @@ public class test10 extends Application {
       
       VBox curColCont = new VBox();
       curColCont.setAlignment(Pos.CENTER);
-      curColCont.setPadding(new Insets(10,50,10,50));
+      curColCont.setPadding(new Insets(10,66,10,66));
       curColCont.setPrefHeight(70);
       
       HBox curCol = new HBox();
-      //curCol.setStyle("-fx-background-color: #" + (Color)tg.getSelectedToggle().getUserData());
-      //System.out.println((Color)tg.getSelectedToggle().getUserData());
       curCol.setPrefSize(100, 50);
       curColCont.getChildren().addAll(currentColorText, curCol);
-      
-      
+      curCol.setStyle("-fx-background-color: #" + tg.getSelectedToggle().getUserData().toString().substring(2,8));
+      tg.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+          public void changed(ObservableValue<? extends Toggle> ov,
+              Toggle toggle, Toggle new_toggle) {
+        	  curCol.setStyle("-fx-background-color: #" + tg.getSelectedToggle().getUserData().toString().substring(2,8));
+          }
+      });
       
       HBox nextBtnCont = new HBox();
       nextBtnCont.getChildren().addAll(btnNext,btnBack);
-      nextBtnCont.setPrefHeight(100);
+      nextBtnCont.setPrefHeight(70);
       nextBtnCont.setAlignment(Pos.CENTER_LEFT);
-      nextBtnCont.setPadding(new Insets(50,50,50,50));
+      nextBtnCont.setPadding(new Insets(0,50,0,50));
       nextBtnCont.setSpacing(50);
       nextBtnCont.setStyle("-fx-background-color: #D3D3D3;");
       
       HBox hintCont = new HBox();
-      hintCont.getChildren().add(hint);
+      hintCont.getChildren().addAll(hint,colourDelete);
       hintCont.setPrefHeight(70);
       hintCont.setAlignment(Pos.CENTER_LEFT);
+      hintCont.setSpacing(50);
       hintCont.setPadding(new Insets(10,50,10,50));
       
       HBox solveCont = new HBox();
@@ -303,7 +368,7 @@ public class test10 extends Application {
       solveCont.setPadding(new Insets(10,50,10,50));
       solveCont.setStyle("-fx-background-color: #D3D3D3;");
       
-      subMenus.getChildren().addAll(curColCont, solveCont, hintCont,nextBtnCont);
+      subMenus.getChildren().addAll(curColCont,solveCont, hintCont,nextBtnCont);
       
       //Creating a scene object 
       Scene scene = new Scene(layoutAlignment);  
