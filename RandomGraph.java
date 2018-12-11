@@ -18,7 +18,7 @@ public class RandomGraph {
 	
 	public RandomGraph(){
 		Random rnd = new Random();
-		vertices = rnd.nextInt(30);
+		vertices = rnd.nextInt(2)+5;
 		edges = rnd.nextInt((int)(vertices*(vertices-1)/2));
 	}
 	

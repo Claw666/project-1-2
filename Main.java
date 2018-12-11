@@ -26,11 +26,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
 public class Main extends Application {
-    
-    private int[][] adjacency;
-    private int numberofEdges;
-    private int numberofVertices;
-    
+	
+	private int[][] adjacency;
+	private int numberofEdges;
+	private int numberofVertices;
+	
   @Override
   public void start(Stage primaryStage) throws Exception {
     
@@ -98,13 +98,39 @@ public class Main extends Application {
           });
         
         modeTwoContainer.setPickOnBounds(true); // allows click on transparent areas
-        modeTwoContainer.setOnMouseClicked((MouseEvent e) -> {
-            System.out.println("Clicked!"); // change functionality
+        modeTwoContainer.setOnMouseClicked(new EventHandler<MouseEvent>() {
+	        @Override
+	        public void handle(MouseEvent event) {
+	        	if (numberofVertices>0){
+               		Mode2 test = new Mode2(adjacency,numberofVertices,numberofEdges);
+               		test.start(primaryStage);	
+				}else {
+					RandomGraph rnd= new RandomGraph();
+					adjacency = rnd.createMatrix();
+					numberofVertices = rnd.getVertices();
+					numberofEdges = rnd.getEdges();
+					Mode2 test = new Mode2(adjacency,numberofVertices,numberofEdges);
+               		test.start(primaryStage);
+				}
+            }
           });
         
         modeThreeContainer.setPickOnBounds(true); // allows click on transparent areas
-        modeThreeContainer.setOnMouseClicked((MouseEvent e) -> {
-            System.out.println("Clicked!"); // change functionality
+        modeThreeContainer.setOnMouseClicked(new EventHandler<MouseEvent>() {
+	        @Override
+	        public void handle(MouseEvent event) {
+	        	if (numberofVertices>0){
+               		Mode3 test = new Mode3(adjacency,numberofVertices,numberofEdges);
+               		test.start(primaryStage);	
+				}else {
+					RandomGraph rnd= new RandomGraph();
+					adjacency = rnd.createMatrix();
+					numberofVertices = rnd.getVertices();
+					numberofEdges = rnd.getEdges();
+					Mode3 test = new Mode3(adjacency,numberofVertices,numberofEdges);
+               		test.start(primaryStage);
+				}
+            }
           });
         
         modeOneContainer.setOnMouseEntered(new EventHandler <MouseEvent>() {
@@ -452,10 +478,10 @@ public class Main extends Application {
                 public void handle(final ActionEvent e) {
                     File file = fileChooser.showOpenDialog(primaryStage);
                     ReadGraphClass G = new ReadGraphClass(file.getAbsolutePath());
-                    adjacency = G.ReadFile();
-                    numberofEdges = G.getEdges();
-                    numberofVertices = G.getVertices();
-                    preview test = new preview(adjacency,numberofVertices,numberofEdges);
+             	   	adjacency = G.ReadFile();
+             	   	numberofEdges = G.getEdges();
+             	   	numberofVertices = G.getVertices();
+             	   	preview test = new preview(adjacency,numberofVertices,numberofEdges);
                     if (file != null) {
                        System.out.println("Name of file: " + file);
                        test.display();
@@ -523,20 +549,22 @@ public class Main extends Application {
         Scene setScene = new Scene(setMainCont);
         
         modeOneContainer.setOnMouseClicked(
-                new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        if (numberofVertices>0){
-                            Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
-                            test.start(primaryStage);   
-                        }else {
-                            primaryStage.setScene(setScene);
-                            back3.setOnAction(f-> {
-                                primaryStage.setScene(scene);
-                            });
-                        }
+        		new EventHandler<MouseEvent>() {
+        	        @Override
+        	        public void handle(MouseEvent event) {
+        	        	if (numberofVertices>0){
+                       		Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
+                       		test.start(primaryStage);	
+        				}else {
+        					RandomGraph rnd= new RandomGraph();
+        					adjacency = rnd.createMatrix();
+        					numberofVertices = rnd.getVertices();
+        					numberofEdges = rnd.getEdges();
+        					Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
+                       		test.start(primaryStage);
+        				}
                     }
-                });
+  				});
         
        
         
@@ -562,15 +590,12 @@ public class Main extends Application {
         });
                 
       }
-      private Node createSpacer() {
-          final Region spacer = new Region();
-          // Make it always grow or shrink according to the available space
-          HBox.setHgrow(spacer, Priority.ALWAYS);
-          return spacer;
-      }   
-      public Main () {
-    	  
-      }
+  	  private Node createSpacer() {
+  		  final Region spacer = new Region();
+  		  // Make it always grow or shrink according to the available space
+  		  HBox.setHgrow(spacer, Priority.ALWAYS);
+  		  return spacer;
+    }	
 
       public static void main(String[] args) {
         Application.launch(args);

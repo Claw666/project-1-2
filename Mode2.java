@@ -2,14 +2,14 @@ package application;
 
 import javafx.stage.Stage;
 
-public class Mode1 { 
+public class Mode2 {
 	   private int[][] adjacency;
 	   private int edges;
 	   private int Nvertices;
 	   private static ColCircle[] vertices;
 	   private int[] colorSol;
 	   
-	   public Mode1(int[][] matrix,int vertices,int Edges) {
+	   public Mode2(int[][] matrix,int vertices,int Edges) {
 		   adjacency = matrix;
 		   edges= Edges;
 		   Nvertices = vertices;
@@ -17,7 +17,7 @@ public class Mode1 {
 	   
 	   public void start(Stage primaryStage){
 		   
-		   test10 test10 = new test10(adjacency,Nvertices,edges,1);
+		   test10 test10 = new test10(adjacency,Nvertices,edges,2);
 		   vertices = test10.getColCircle();
 		   Greedy Upperbound = new Greedy(Nvertices);
 			
@@ -46,17 +46,8 @@ public class Mode1 {
 			
 			test10.setSol(colorSol);
 			
-			
-/*			dragNode[] arr = test10.getdragNode();
-			Label  labelCoo  = new Label();
-			labelCoo.textProperty().bind(
-	                Bindings.format(
-	                    "%.2f",
-	                    arr[1].getCenterX()
-	                )
-	        );*/
-			System.out.println(x);
-			test10.setCN(x);
+			System.out.println(upper);
+			test10.setCN(upper);
 			test10.start(primaryStage);
 	   }
 }

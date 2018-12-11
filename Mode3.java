@@ -2,22 +2,27 @@ package application;
 
 import javafx.stage.Stage;
 
-public class Mode1 { 
+public class Mode3 {
 	   private int[][] adjacency;
 	   private int edges;
 	   private int Nvertices;
 	   private static ColCircle[] vertices;
 	   private int[] colorSol;
 	   
-	   public Mode1(int[][] matrix,int vertices,int Edges) {
+	   public Mode3(int[][] matrix,int vertices,int Edges) {
 		   adjacency = matrix;
 		   edges= Edges;
 		   Nvertices = vertices;
 	   }
 	   
 	   public void start(Stage primaryStage){
+		   Graph graph = new Graph(Nvertices,adjacency);
+		   graph.createVertices();
+		   BFS bfs = new BFS(Nvertices);
+		   bfs.BFSExact(graph);
+		   int[] nodeOrder = bfs.getnodeOrder();
 		   
-		   test10 test10 = new test10(adjacency,Nvertices,edges,1);
+		   test10 test10 = new test10(adjacency,Nvertices,edges,3);
 		   vertices = test10.getColCircle();
 		   Greedy Upperbound = new Greedy(Nvertices);
 			
@@ -57,6 +62,7 @@ public class Mode1 {
 	        );*/
 			System.out.println(x);
 			test10.setCN(x);
+			test10.setNodeOrder(nodeOrder);
 			test10.start(primaryStage);
 	   }
 }

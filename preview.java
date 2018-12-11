@@ -1,6 +1,5 @@
 package application;
 
-import javafx.application.Application; 
 import javafx.scene.Group; 
 import javafx.scene.Scene; 
 import javafx.stage.Stage; 
@@ -8,8 +7,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Circle; 
 import javafx.scene.text.Font; 
 import javafx.scene.text.Text;
-import java.io.*;
-import java.util.*;
 
 class ColLines //will contain the x and y values for the edges
 			{

@@ -6,7 +6,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Application; 
+import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -22,6 +23,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -48,11 +50,7 @@ class ColCircle // will contain the x,y and rad values for the circles
 			int y;
 			int rad = 20;
 			}
-class ColEdge
-			{
-			int u;
-			int v;
-			}
+
          
 public class test10 extends Application { 
 	private int[] colorSol;
@@ -64,6 +62,7 @@ public class test10 extends Application {
    private static ColCircle[] vertices;
    private dragNode[] arr;
    private Line[] lines; 
+   private Text[] Text;
    private ToggleGroup tg;
    private int CN;
    private boolean finished = false;
@@ -72,6 +71,8 @@ public class test10 extends Application {
    private  Color [] color;
    private int pressed;
    private ToggleButton[] togle;
+   private int Mode;
+   private int[] NodeOrder;
    
    
    //Timer variables
@@ -93,14 +94,18 @@ private IntegerProperty timeSeconds =
    }
 */
    //constructor for the random generator
-   public test10(int[][] matrix,int vertices,int Edges) {
+   public test10(int[][] matrix,int vertices,int Edges,int mode) {
 	   adjacency = matrix;
 	   edges= Edges;
 	   Nvertices = vertices;
+	   Mode = mode;
    }
    
    public void start(Stage stage) { 
-	   
+
+	   //Creating a root group
+	   Group root = new Group();
+	      
 	   VBox menuBar = new VBox();
 	   BorderPane menuBarAlignment = new BorderPane();
 	   menuBar.getChildren().addAll(menuBarAlignment);
@@ -115,8 +120,6 @@ private IntegerProperty timeSeconds =
 	   colorCont.setAlignment(Pos.TOP_CENTER);
 	   menuBarAlignment.setCenter(colorCont);
 	   colorCont.setPadding(new Insets(50,50,50,50));
-	   HBox timerCont = new HBox();
-	   menuBarAlignment.setTop(timerCont);
 	   VBox subMenus = new VBox();
 	   menuBarAlignment.setBottom(subMenus);
 	   BorderPane layoutAlignment = new BorderPane();
@@ -168,9 +171,11 @@ private IntegerProperty timeSeconds =
    	   //some weird magic
    	   ColCircle vertices[] = null;
    	   arr = null;
+   	   Text = null;
    	   
    	   vertices = new ColCircle[Nvertices];
    	   arr = new dragNode[Nvertices];
+   	   Text = new fixedText[Nvertices];
        width = (int) stage.getWidth();
        height = (int) stage.getHeight();
    	   
@@ -202,6 +207,9 @@ private IntegerProperty timeSeconds =
       //make the dragNodes
       for(int i = 0; i<Nvertices;i++){
     	  arr[i] = new dragNode(Color.WHITE,startX[i],startY[i],20);
+    	  if(Mode==3) {
+    		 Text[i] = new fixedText(startX[i],startY[i],Integer.toString(NodeOrder[i]));
+    	  }
       }
       
       //mane an array to put the Boundes Lines in
@@ -231,8 +239,13 @@ private IntegerProperty timeSeconds =
       					adjacency = rnd.createMatrix();
       					int numberofVertices = rnd.getVertices();
       					int numberofEdges = rnd.getEdges();
-      					Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
-                     	test.start(stage);
+      					if(Mode==1) {
+      						Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
+      						test.start(stage);
+      					}else if(Mode==2) {
+      						Mode2 test = new Mode2(adjacency,numberofVertices,numberofEdges);
+      						test.start(stage);
+      					}
                   }
 				});
       
@@ -256,10 +269,13 @@ private IntegerProperty timeSeconds =
                   }
               });
       TextField Input = new TextField();
+      Input.setPromptText("amount of solving colors");
 	  
       Button BackTrack = new Button("Solve it");
-		 BackTrack.setOnAction(new EventHandler<ActionEvent>() {
-			    @Override public void handle(ActionEvent e) {
+	  BackTrack.setOnAction(
+			  new EventHandler<ActionEvent>() {
+			    @Override 
+			    public void handle(ActionEvent e) {
 			       // greedy();
 			    	String amount = Input.getText();
 			    	pressed = (int) Double.parseDouble(amount)-1;
@@ -268,13 +284,13 @@ private IntegerProperty timeSeconds =
 	        		//checkedges();
 			    }
 			});
- 
+	  Main homePage = new Main();
       Button btnBack = new Button("BACK");
       btnBack.setOnAction(
               new EventHandler<ActionEvent>() {
                   @Override
                   public void handle(final ActionEvent e) {
-                	  Main homePage = new Main();
+                	  
                 	  try {
 						homePage.start(stage);
 					} catch (Exception e1) {
@@ -294,37 +310,36 @@ private IntegerProperty timeSeconds =
                   }
 				});
       
-      Win = new Label();
-      Win.setFont(new Font("Arial",150));
-      Win.setTextFill(Color.GREEN);
-     
-      
-      timerLabel.setStyle("-fx-font-size: 2em;");
-      
-      timerCont.getChildren().add(timerLabel);
-      timerCont.setPrefHeight(50);
-      timerCont.setAlignment(Pos.CENTER);
-      
-      if (timeline != null) {
-          timeline.stop();
+      //Timer
+      if(Mode == 2) {
+    	  HBox timerCont = new HBox();
+   	   	  menuBarAlignment.setTop(timerCont);
+	      timerLabel.setStyle("-fx-font-size: 2em;");
+	      
+	      timerCont.getChildren().add(timerLabel);
+	      timerCont.setPrefHeight(50);
+	      timerCont.setAlignment(Pos.CENTER);
+	      
+	      if (timeline != null) {
+	          timeline.stop();
+	      }
+	      timeSeconds.set(STARTTIME);
+	      timeline = new Timeline(new KeyFrame(Duration.seconds(STARTTIME+1), e -> lostPopup()));
+	      timeline.getKeyFrames().add(
+	              new KeyFrame(Duration.seconds(STARTTIME+1),
+	              new KeyValue(timeSeconds, 0)));
+	      timeline.playFromStart();
+	      
+	   // Bind the timerLabel text property to the timeSeconds property
+	      timerLabel.textProperty().bind(timeSeconds.asString());
+	      
       }
-      timeSeconds.set(STARTTIME);
-      timeline = new Timeline();
-      timeline.getKeyFrames().add(
-              new KeyFrame(Duration.seconds(STARTTIME+1),
-              new KeyValue(timeSeconds, 0)));
-      timeline.playFromStart();
-      
-   // Bind the timerLabel text property to the timeSeconds property
-      timerLabel.textProperty().bind(timeSeconds.asString());
-      
-      //Creating a root group
-      Group root = new Group();
       
       //add the arrays to the group
       root.getChildren().addAll(lines);
       root.getChildren().addAll(arr);
-      root.getChildren().add(Win);
+      if(Mode==3)
+    	  root.getChildren().addAll(Text);
       layoutAlignment.setRight(menuBar);
       layoutAlignment.setCenter(root);
       
@@ -412,6 +427,15 @@ private IntegerProperty timeSeconds =
 	      setMouseTransparent(true);
 	    }
 	  }
+   class fixedText extends Text {
+	      fixedText(DoubleProperty x, DoubleProperty y, String text) {
+	      xProperty().bind(x);
+	      yProperty().bind(y);
+	      setText(text);
+	      setMouseTransparent(true);
+	      
+	    }
+	  }
 
 	  // a draggable dragNode displayed around a point.
 	  class dragNode extends Circle { 
@@ -440,9 +464,29 @@ private IntegerProperty timeSeconds =
 		          getScene().setCursor(Cursor.MOVE);
 	        	}
 	        	if (button == MouseButton.PRIMARY) {
-	        		setFill((Color)tg.getSelectedToggle().getUserData());
-	        		checkcolors();
-	        		if(hint.isSelected()) checkedges();
+	        		if(Mode<3) {
+		        		setFill((Color)tg.getSelectedToggle().getUserData());
+		        		checkcolors();
+		        		if(hint.isSelected()) checkedges();
+	        		}else {
+	        			int i=-1;
+	        			boolean found = false;
+	        		/*	while(i<Text.length && !found) {
+	        				i++;
+	        				if((mouseEvent.getSceneX() > Text[i].getX()-20 && mouseEvent.getSceneX() < Text[i].getX()+20)&&(mouseEvent.getSceneY() > Text[i].getY()-20 && mouseEvent.getSceneY() < Text[i].getY()+20)) {
+	        					found = true;
+	        				}
+	        	
+	        			}*/
+	        			System.out.println("X "+mouseEvent.getSceneX());
+	        			System.out.println("Y "+mouseEvent.getSceneY());
+	        			System.out.println("X "+Text[0].getX());
+	        			System.out.println("Y "+Text[0].getY());
+	        			System.out.println(i);
+	        			setFill((Color)tg.getSelectedToggle().getUserData());
+		        		checkcolors();
+		        		if(hint.isSelected()) checkedges();
+	        		}
 	        	}
 	        }
 	      });
@@ -504,12 +548,12 @@ private IntegerProperty timeSeconds =
 		int size = set.size();
 		if(check && size==CN) finished = true;
 		if(finished) {
-			Win.setText("Finished");
-			Win.setTranslateX(width/2-300);							//Win.getWidth always gives 0.0?
-		    Win.setTranslateY(height/2-Win.getHeight()/2);
+			winPopup();
 		}
 
 	 }
+	  
+	  
 	  
 	  private void checkedges(){
 		  for(int p =0; p<edges;p++) {
@@ -547,4 +591,31 @@ private IntegerProperty timeSeconds =
 	  public void setSol(int[] sol) {
 		 this.colorSol = sol;
 	  }
+	  public void setNodeOrder(int[] Order) {
+		  NodeOrder = Order;
+	  }
+	// Show a Information Alert without Header Text
+	    public void winPopup() {
+	        Alert alert = new Alert(AlertType.INFORMATION);
+	        alert.setTitle("Congratulations!");
+	 
+	        // Header Text: null
+	        alert.setHeaderText(null);
+	        alert.setContentText("Great job! Now try a harder graph!");
+	 
+	        alert.showAndWait();
+	    }
+		 // Show a Information Alert without Header Text
+	    public void lostPopup() {
+	        Alert alert = new Alert(AlertType.ERROR);
+	        alert.setTitle("Losing is not cool!");
+	 
+	        // Header Text: null
+	        alert.setHeaderText(null);
+	        alert.setContentText("You lost! Better luck next time!");
+	 
+	        //alert.setOnHidden(evt -> homePage.start(stage));
+
+	        alert.show(); 
+	    } 
 }
