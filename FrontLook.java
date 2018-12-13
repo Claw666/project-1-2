@@ -113,7 +113,7 @@ public class FrontLook extends Application {
           Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
           test.start(primaryStage); 
         } else {
-          RandomGraph rnd= new RandomGraph();
+          RandomGraph rnd= new RandomGraph(10,19);
           adjacency = rnd.createMatrix();
           numberofVertices = rnd.getVertices();
           numberofEdges = rnd.getEdges();
@@ -136,7 +136,7 @@ public class FrontLook extends Application {
           Mode2 test = new Mode2(adjacency,numberofVertices,numberofEdges);
           test.start(primaryStage); 
         }else {
-          RandomGraph rnd= new RandomGraph();
+          RandomGraph rnd= new RandomGraph(10,19);
           adjacency = rnd.createMatrix();
           numberofVertices = rnd.getVertices();
           numberofEdges = rnd.getEdges();
@@ -159,7 +159,7 @@ public class FrontLook extends Application {
           Mode3 test = new Mode3(adjacency,numberofVertices,numberofEdges);
           test.start(primaryStage); 
         }else {
-          RandomGraph rnd= new RandomGraph();
+          RandomGraph rnd= new RandomGraph(10,19);
           adjacency = rnd.createMatrix();
           numberofVertices = rnd.getVertices();
           numberofEdges = rnd.getEdges();
