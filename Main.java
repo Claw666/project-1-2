@@ -1,604 +1,705 @@
 package application;
 
-import javafx.application.Application;
-import javafx.beans.binding.Bindings;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
-import javafx.geometry.Rectangle2D;
-import javafx.stage.Screen;
-import javafx.scene.control.*;
-import java.io.FileInputStream;
-import javafx.geometry.*;
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
-import java.io.File;
-import java.io.IOException;
-import javafx.event.ActionEvent;
+import java.util.Set;
 import javafx.beans.value.ChangeListener;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
+import javafx.application.Application; 
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.*;
+import javafx.scene.control.Label;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Circle; 
+import javafx.scene.paint.Color;
+import javafx.scene.shape.*;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import java.util.HashSet;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.event.ActionEvent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.text.Text;
+import java.util.Random;
 
-public class Main extends Application {
-	
-	private int[][] adjacency;
-	private int numberofEdges;
-	private int numberofVertices;
-	
-  @Override
-  public void start(Stage primaryStage) throws Exception {
-    
-    //Define Window title
-    primaryStage.setTitle("Team 8 - Graph Game");
-    
-    
-    VBox sliderBox = new VBox();
-    sliderBox.setAlignment(Pos.CENTER);
-    sliderBox.setPrefHeight(500);
-    Text title = new Text("JOIN FOR THE ADVENTURE");
-    title.getStyleClass().add("title");
-    
-    Button settings = new Button("SETTINGS");
-    settings.getStyleClass().add("menu_items");
-    Button rules = new Button("RULES");
-    rules.getStyleClass().add("menu_items");
-    Button credits = new Button("CREDITS");
-    credits.getStyleClass().add("menu_items");
-    
-    HBox menuBox = new HBox();
-    menuBox.setAlignment(Pos.CENTER);
-    menuBox.setPrefWidth(400);
-    menuBox.setSpacing(10);
-    menuBox.getChildren().addAll(settings, rules, credits);
-    
-    sliderBox.getChildren().addAll(title, menuBox);
-    
-    
-    
-    
-        //Add game mode images
-    ImageView iv_1 = new ImageView();
-    iv_1.setImage(new Image(new FileInputStream("src/application/mode-one.png")));
-    ImageView iv_2 = new ImageView();
-    iv_2.setImage(new Image(new FileInputStream("src/application/mode-two.png")));
-    ImageView iv_3 = new ImageView();
-    iv_3.setImage(new Image(new FileInputStream("src/application/mode-three.png")));
-    
-        //Add game mode labels
-    Label modeOneLabel = new Label("Mode 1");
-    Label modeTwoLabel = new Label("Mode 2");
-    Label modeThreeLabel = new Label("Mode 3");
-    
-        //Defining layouts 
-    VBox mainContainer = new VBox();
-    VBox modeOneContainer = new VBox();
-    VBox modeTwoContainer = new VBox();
-    VBox modeThreeContainer = new VBox();
-    
-    
-    HBox modeBox = new HBox();
+//will contain the x,y and RAD values for the circles
+class ColCircle {
+  int x;
+  int y;
+  int rad = 20;
+}
 
-    
-    modeOneContainer.getStyleClass().add("modeButton");
-    modeOneContainer.setPadding(new Insets(10,10,10,10));
-    modeTwoContainer.getStyleClass().add("modeButton");
-    modeTwoContainer.setPadding(new Insets(10,10,10,10));
-    modeThreeContainer.getStyleClass().add("modeButton");
-    modeThreeContainer.setPadding(new Insets(10,10,10,10));
-    
-        modeOneContainer.setPickOnBounds(true); // allows click on transparent areas
-        modeOneContainer.setOnMouseClicked((MouseEvent e) -> {
-            System.out.println("Clicked!"); // change functionality
-          });
-        
-        modeTwoContainer.setPickOnBounds(true); // allows click on transparent areas
-        modeTwoContainer.setOnMouseClicked(new EventHandler<MouseEvent>() {
-	        @Override
-	        public void handle(MouseEvent event) {
-	        	if (numberofVertices>0){
-               		Mode2 test = new Mode2(adjacency,numberofVertices,numberofEdges);
-               		test.start(primaryStage);	
-				}else {
-					RandomGraph rnd= new RandomGraph();
-					adjacency = rnd.createMatrix();
-					numberofVertices = rnd.getVertices();
-					numberofEdges = rnd.getEdges();
-					Mode2 test = new Mode2(adjacency,numberofVertices,numberofEdges);
-               		test.start(primaryStage);
-				}
-            }
-          });
-        
-        modeThreeContainer.setPickOnBounds(true); // allows click on transparent areas
-        modeThreeContainer.setOnMouseClicked(new EventHandler<MouseEvent>() {
-	        @Override
-	        public void handle(MouseEvent event) {
-	        	if (numberofVertices>0){
-               		Mode3 test = new Mode3(adjacency,numberofVertices,numberofEdges);
-               		test.start(primaryStage);	
-				}else {
-					RandomGraph rnd= new RandomGraph();
-					adjacency = rnd.createMatrix();
-					numberofVertices = rnd.getVertices();
-					numberofEdges = rnd.getEdges();
-					Mode3 test = new Mode3(adjacency,numberofVertices,numberofEdges);
-               		test.start(primaryStage);
-				}
-            }
-          });
-        
-        modeOneContainer.setOnMouseEntered(new EventHandler <MouseEvent>() {
+class fixedLine extends Line {
+  fixedLine(DoubleProperty startX, DoubleProperty startY, DoubleProperty endX, DoubleProperty endY) {
+    startXProperty().bind(startX);
+    startYProperty().bind(startY);
+    endXProperty().bind(endX);
+    endYProperty().bind(endY);
+    setStrokeWidth(2);
+    setStroke(Color.GRAY);
+    setStrokeLineCap(StrokeLineCap.ROUND);
+    getStrokeDashArray().setAll(10.0, 5.0);
+    setMouseTransparent(true);
+  }
+}
+class fixedText extends Text {
+  fixedText(DoubleProperty x, DoubleProperty y, String text) {
+    xProperty().bind(x.subtract(4));
+    yProperty().bind(y.add(4));
+    setText(text);
+    setMouseTransparent(true);
 
+  }
+}
+
+public class Main extends Application { 
+  private int[] colorSol;
+  private int width;
+  private int height;
+  private int[][] adjacency;
+  private int edges;
+  private static int Nvertices;
+  private static ColCircle[] vertices;
+  private dragNode[] arr;
+  private Line[] lines; 
+  private Text[] Text;
+  private ToggleGroup tg;
+  private int CN;
+  private boolean finished = false;
+  private ToggleButton hint;
+  private ToggleButton highlight;
+  private  Color [] color;
+  private int pressed;
+  private ToggleButton[] togle;
+  private int Mode;
+  private int[] NodeOrder;
+  private int currValue = 0;
+  private Group root = new Group();
+
+  //Timer variables
+  private static final Integer STARTTIME = 120;
+  private Timeline timeline;
+  private Label timerLabel = new Label();
+
+  // Make timeSeconds a Property
+  private IntegerProperty timeSeconds =
+  new SimpleIntegerProperty(STARTTIME);
+
+  public Main(int[][] matrix,int vertices,int Edges,int mode) {
+   adjacency = matrix;
+   edges= Edges;
+   Nvertices = vertices;
+   Mode = mode;
+ }
+
+ public void start(Stage stage) { 
+   
+   //Defining layouts 
+   VBox menuBar = new VBox();
+   BorderPane menuBarAlignment = new BorderPane();
+   VBox colorleft = new VBox(8);
+   VBox colorright = new VBox(8);
+   HBox colorCont = new HBox(8);
+   VBox subMenus = new VBox();
+   BorderPane layoutAlignment = new BorderPane();
+   HBox curCol = new HBox();
+   VBox curColCont = new VBox();
+   
+   
+   menuBar.getChildren().addAll(menuBarAlignment);
+   menuBar.setAlignment(Pos.BOTTOM_CENTER);
+   menuBar.setStyle("-fx-background-color: #e5e5e5;");
+   menuBar.setMinWidth(300);
+   //Set menu items to the bottom
+   menuBarAlignment.setBottom(subMenus);
+   //Set color palate to center position
+   menuBarAlignment.setCenter(colorCont);
+   
+   //Right hand side color palate container
+   colorCont.setAlignment(Pos.TOP_CENTER);
+   colorCont.setPadding(new Insets(50,50,50,50));
+   
+   //Color palate
+   color=new Color[12];
+   Random RND = new Random();
+   for(int i=0; i<12; i++) {
+     int red = RND.nextInt(13)*20;
+     int green = RND.nextInt(13)*20;
+     int blue = RND.nextInt(13)*20;
+     Color colo = Color.rgb(red, green, blue);
+     color[i] = colo;
+   }
+   
+   tg = new ToggleGroup();
+   togle=new ToggleButton[color.length];
+   
+   //Create toggle buttons for the colors based on the chromatic number
+   for(int i=0; i<12; i++){
+
+     togle[i]=new ToggleButton();
+     if (i==0) togle[0].setSelected(true);
+
+       //Give the toggle userData
+     togle[i].setUserData(color[i]);
+       //add the toggle to the group
+     togle[i].setToggleGroup(tg);
+
+     String colo2 = color[i].toString().substring(2);
+     togle[i].setStyle("-fx-background-color: #"+colo2);
+
+
+     togle[i].setMinSize(90,90);
+     if(i<6) {
+      colorright.getChildren().add(togle[i]);
+    }
+    else {
+      colorleft.getChildren().add(togle[i]);
+    }
+  }
+  colorCont.getChildren().addAll(colorleft,colorright);
+  
+  //Displaying the graph in the game modes
+  
+  //boolean matrix to check which edges have been used or not
+  boolean[][] edgesstate = new boolean[Nvertices][Nvertices];
+  ColCircle vertices[] = null;
+  arr = null;
+  Text = null;
+
+  vertices = new ColCircle[Nvertices];
+  arr = new dragNode[Nvertices];
+  Text = new fixedText[Nvertices];
+  width = (int) stage.getWidth();
+  height = (int) stage.getHeight();
+
+  double angle = 2*Math.PI/Nvertices;
+  // giving x and y values to the circles
+  for(int i=0; i<Nvertices;i++){
+   vertices[i] = new ColCircle();
+   vertices[i].x = (int)(height/3.0*Math.cos(i*angle)+width/3.0);
+   vertices[i].y = (int)(height/3.0*Math.sin(i*angle)+height/2.0);
+ }  
+
+
+//make arrays to store the DoubleProperty values      
+ DoubleProperty[] startX = new SimpleDoubleProperty[Nvertices];
+ DoubleProperty[] startY = new SimpleDoubleProperty[Nvertices];
+ DoubleProperty[] endX = new SimpleDoubleProperty[Nvertices];
+ DoubleProperty[] endY = new SimpleDoubleProperty[Nvertices];
+
+//get the x,y values of the vertices and put them in the arrays
+ for(int i = 0; i<Nvertices;i++){
+  startX[i] = new SimpleDoubleProperty(vertices[i].x);
+  startY[i] = new SimpleDoubleProperty(vertices[i].y);
+  endX[i] = new SimpleDoubleProperty(vertices[i].x);
+  endY[i] = new SimpleDoubleProperty(vertices[i].y);
+}
+
+      //make an array to put the dragNodes in, these will be the vertices
+      //dragNode[] arr = new dragNode[Nvertices];
+
+      //make the dragNodes
+for(int i = 0; i<Nvertices;i++){
+  arr[i] = new dragNode(Color.WHITE,startX[i],startY[i],20);
+  if(Mode==3) {
+   Text[i] = new fixedText(startX[i],startY[i],Integer.toString(NodeOrder[i]));
+   arr[i].value = NodeOrder[i];
+ }
+}
+
+      //makee an array to put the Boundes Lines in
+lines = new fixedLine[edges];
+
+       //place counter
+int p = 0;
+
+       //make all the lines
+for(int i=0;i<Nvertices;i++){
+  for(int j =0; j<Nvertices;j++){
+    if(adjacency[i][j]==1 && edgesstate[i][j]==false){
+      lines[p] = new fixedLine(startX[i], startY[i], startX[j], startY[j]);
+      p++;
+            edgesstate[i][j] = true; //we also make the place in the edgesstate true, this means we have used this edge
+            edgesstate[j][i] = true;
+          }
+  }
+}
+      
+      //Go to a next generated game (same mode)
+      Button btnNext = new Button("NEXT");
+      btnNext.setOnAction(
+        new EventHandler<ActionEvent>() {
           @Override
-          public void handle(MouseEvent t) {
-           iv_1.setStyle("-fx-background-color:#dae7f3;");
-         }
-       });
-        
-        modeOneContainer.getChildren().addAll(iv_1,modeOneLabel);
-        modeOneContainer.setAlignment(Pos.CENTER);
-        modeTwoContainer.getChildren().addAll(iv_2,modeTwoLabel);
-        modeTwoContainer.setAlignment(Pos.CENTER);
-        modeThreeContainer.getChildren().addAll(iv_3,modeThreeLabel);
-        modeThreeContainer.setAlignment(Pos.CENTER);
-        
-        modeBox.getChildren().addAll(createSpacer(),modeOneContainer,createSpacer(), modeTwoContainer,createSpacer(), modeThreeContainer,createSpacer());
-        modeBox.setPadding(new Insets(0,0,0,0));
-        
-        
-        
-        mainContainer.getChildren().addAll(sliderBox, modeBox);
-
-        Scene scene = new Scene(mainContainer);
-        scene.getStylesheets().add("application/Main.css");
-        primaryStage.setScene(scene);
-        
-        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        //set Stage boundaries to visible bounds of the main screen
-        primaryStage.setX(primaryScreenBounds.getMinX());
-        primaryStage.setY(primaryScreenBounds.getMinY());
-        primaryStage.setWidth(primaryScreenBounds.getWidth());
-        primaryStage.setHeight(primaryScreenBounds.getHeight());
-        
-        
-        //Show stage
-        primaryStage.show();
-        
-        Button back = new Button("BACK");
-        HBox backCont = new HBox();
-        backCont.getChildren().add(back);
-        backCont.setAlignment(Pos.CENTER_RIGHT);
-        backCont.setPadding(new Insets(50, 50, 50, 50));
-        //Credits
-        
-        VBox creditsMainCont = new VBox();
-        
-        HBox credTitleCont = new HBox();
-        credTitleCont.setAlignment(Pos.CENTER);
-        Text credTitle = new Text("CREDITS");
-        credTitle.setStyle("-fx-font-size: 30px;");
-        credTitleCont.getChildren().add(credTitle);
-        credTitleCont.setPrefHeight(100);
-        
-        HBox credSubTitleCont = new HBox();
-        credSubTitleCont.setAlignment(Pos.CENTER);
-        Text credSubTitle = new Text("This is a sub credit title for showcasing the work of team 8. We are very proud of what we made over the weeks and can't wait for period 3 to finish this shit up.");
-        credSubTitleCont.getChildren().add(credSubTitle);
-        credSubTitleCont.setPrefHeight(50);
-        credSubTitle.setStyle("-fx-font-size: 20px;");
-        GridPane credMainCont = new GridPane();
-        credMainCont.setStyle("-fx-font-size: 18px;");
-        credMainCont.setPadding(new Insets(50, 50, 50, 50)); 
-        //Setting the vertical and horizontal gaps between the columns 
-        credMainCont.setVgap(50); 
-        credMainCont.setHgap(50); 
-        
-        Text DavidTitle = new Text("David");
-        Text CeliaTitle = new Text("Celia");
-        Text PedroTitle = new Text("Pedro");
-        Text NickTitle = new Text("Nick");
-        Text DevTitle = new Text("Devdutt");
-        Text TommyTitle = new Text("Csongor Kocsis");
-        
-        StackPane davidTitleBG = new StackPane();
-        StackPane celiaTitleBG = new StackPane();
-        StackPane pedroTitleBG = new StackPane();
-        StackPane nickTitleBG = new StackPane();
-        StackPane devTitleBG = new StackPane();
-        StackPane tommyTitleBG = new StackPane();
-
-        davidTitleBG.getChildren().add(DavidTitle);
-        celiaTitleBG.getChildren().add(CeliaTitle);
-        pedroTitleBG.getChildren().add(PedroTitle);
-        nickTitleBG.getChildren().add(NickTitle);
-        devTitleBG.getChildren().add(DevTitle);
-        tommyTitleBG.getChildren().add(TommyTitle);
-        
-        davidTitleBG.setPadding(new Insets(10, 10, 10, 10));
-        celiaTitleBG.setPadding(new Insets(10, 10, 10, 10));
-        pedroTitleBG.setPadding(new Insets(10, 10, 10, 10));
-        nickTitleBG.setPadding(new Insets(10, 10, 10, 10));
-        devTitleBG.setPadding(new Insets(10, 10, 10, 10));
-        tommyTitleBG.setPadding(new Insets(10, 10, 10, 10));
-        
-        davidTitleBG.setStyle("-fx-background-color: #dae7f3;");
-        celiaTitleBG.setStyle("-fx-background-color: #dae7f3;");
-        pedroTitleBG.setStyle("-fx-background-color: #dae7f3;");
-        nickTitleBG.setStyle("-fx-background-color: #dae7f3;");
-        devTitleBG.setStyle("-fx-background-color: #dae7f3;");
-        tommyTitleBG.setStyle("-fx-background-color: #dae7f3;");
-        
-        
-        Text DavidContent = new Text("David was responsible for creating the random matrix, adding multiple whatever to containers. On top of that, he was also helping out with this and that. Lastly, he created something new that no one else could have.");
-        TextFlow DavidCont = new TextFlow(); 
-        //Retrieving the observable list of the TextFlow Pane 
-        ObservableList list = DavidCont.getChildren(); 
-        list.addAll(DavidContent);
-        
-        Text CeliaContent = new Text("Celia was responsible for creating the random matrix, adding multiple whatever to containers. On top of that, he was also helping out with this and that. Lastly, he created something new that no one else could have.");
-        TextFlow CeliaCont = new TextFlow(); 
-                //Retrieving the observable list of the TextFlow Pane 
-        ObservableList list2 = CeliaCont.getChildren(); 
-        list2.addAll(CeliaContent);
-        
-        Text PedroContent = new Text("Pedro was responsible for creating the random matrix, adding multiple whatever to containers. On top of that, he was also helping out with this and that. Lastly, he created something new that no one else could have."
-          + "Pedro was responsible for creating the random matrix, adding multiple whatever to containers. On top of that, he was also helping out with this and that. Lastly, he created something new that no one else could have.");
-        TextFlow PedroCont = new TextFlow(); 
-                //Retrieving the observable list of the TextFlow Pane 
-        ObservableList list3 = PedroCont.getChildren(); 
-        list3.addAll(PedroContent);
-
-        Text NickContent = new Text("Nick was responsible for creating the random matrix, adding multiple whatever to containers. On top of that, he was also helping out with this and that. Lastly, he created something new that no one else could have.");
-        TextFlow NickCont = new TextFlow(); 
-                //Retrieving the observable list of the TextFlow Pane 
-        ObservableList list4 = NickCont.getChildren(); 
-        list4.addAll(NickContent);
-
-        Text DevContent = new Text("Dev was responsible for creating the random matrix, adding multiple whatever to containers. On top of that, he was also helping out with this and that. Lastly, he created something new that no one else could have.");
-        TextFlow DevCont = new TextFlow(); 
-                //Retrieving the observable list of the TextFlow Pane 
-        ObservableList list5 = DevCont.getChildren(); 
-        list5.addAll(DevContent);
-
-        Text TommyContent = new Text("Tommy was responsible for creating the random matrix, adding multiple whatever to containers. On top of that, he was also helping out with this and that. Lastly, he created something new that no one else could have.");
-        TextFlow TommyCont = new TextFlow(); 
-                //Retrieving the observable list of the TextFlow Pane 
-        ObservableList list6 = TommyCont.getChildren(); 
-        list6.addAll(TommyContent);
-        
-        
-        DavidCont.setPadding(new Insets(10, 10, 10, 10));
-        CeliaCont.setPadding(new Insets(10, 10, 10, 10));
-        PedroCont.setPadding(new Insets(10, 10, 10, 10));
-        NickCont.setPadding(new Insets(10, 10, 10, 10));
-        DevCont.setPadding(new Insets(10, 10, 10, 10));
-        TommyCont.setPadding(new Insets(10, 10, 10, 10));
-
-        DavidCont.setStyle("-fx-background-color: #dae7f3;");
-        CeliaCont.setStyle("-fx-background-color: #dae7f3;");
-        PedroCont.setStyle("-fx-background-color: #dae7f3;");
-        NickCont.setStyle("-fx-background-color: #dae7f3;");
-        DevCont.setStyle("-fx-background-color: #dae7f3;");
-        TommyCont.setStyle("-fx-background-color: #dae7f3;");
-        
-        
-        credMainCont.add(davidTitleBG, 0, 0);
-        credMainCont.add(celiaTitleBG, 0, 1);
-        credMainCont.add(pedroTitleBG, 0, 2);
-        credMainCont.add(nickTitleBG, 0, 3);
-        credMainCont.add(devTitleBG, 0, 4);
-        credMainCont.add(tommyTitleBG, 0, 5);
-        
-        credMainCont.add(DavidCont, 1, 0);
-        credMainCont.add(CeliaCont, 1, 1);
-        credMainCont.add(PedroCont, 1, 2);
-        credMainCont.add(NickCont, 1, 3);
-        credMainCont.add(DevCont, 1, 4);
-        credMainCont.add(TommyCont, 1, 5);
-        
-        
-        creditsMainCont.getChildren().addAll(credTitleCont, credSubTitleCont, credMainCont, backCont);
-        Scene creditScene = new Scene(creditsMainCont);
-        
-        Button back2 = new Button("BACK");
-        HBox backCont2 = new HBox();
-        backCont2.getChildren().add(back2);
-        backCont2.setAlignment(Pos.CENTER_RIGHT);
-        backCont2.setPadding(new Insets(50, 50, 50, 50));
-        
-        VBox rulesMainCont = new VBox();
-        HBox rulesTitleCont = new HBox();
-        rulesTitleCont.setAlignment(Pos.CENTER);
-        Text rulesTitle = new Text("RULES");
-        rulesTitle.setStyle("-fx-font-size: 30px;");
-        rulesTitleCont.getChildren().add(rulesTitle);
-        rulesTitleCont.setPrefHeight(100);
-
-        HBox rulSubTitleCont = new HBox();
-        rulSubTitleCont.setAlignment(Pos.CENTER);
-        Text ruleSubTitle = new Text("This is a sub credit title for showcasing the work of team 8. We are very proud of what we made over the weeks and can't wait for period 3 to finish this shit up.");
-        rulSubTitleCont.getChildren().add(ruleSubTitle);
-        rulSubTitleCont.setPrefHeight(50);
-        ruleSubTitle.setStyle("-fx-font-size: 20px;");
-        GridPane ruleMainCont = new GridPane();
-        ruleMainCont.setStyle("-fx-font-size: 18px;");
-        ruleMainCont.setPadding(new Insets(50, 50, 50, 50)); 
-        //Setting the vertical and horizontal gaps between the columns 
-        ruleMainCont.setVgap(50); 
-        ruleMainCont.setHgap(50);
-        
-        Text ruleOneName = new Text("Game Mode 1");
-        Text ruleTwoName = new Text("Game Mode 2");
-        Text ruleThreeName = new Text("Game Mode 3");
-
-
-        StackPane ruleOneBG = new StackPane();
-        StackPane ruleTwoBG = new StackPane();
-        StackPane ruleThreeBG = new StackPane();
-
-        ruleOneBG.getChildren().add(ruleOneName);
-        ruleTwoBG.getChildren().add(ruleTwoName);
-        ruleThreeBG.getChildren().add(ruleThreeName);
-
-        ruleOneBG.setPadding(new Insets(10, 10, 10, 10));
-        ruleTwoBG.setPadding(new Insets(10, 10, 10, 10));
-        ruleThreeBG.setPadding(new Insets(10, 10, 10, 10));
-
-        ruleOneBG.setStyle("-fx-background-color: #dae7f3;");
-        ruleTwoBG.setStyle("-fx-background-color: #dae7f3;");
-        ruleThreeBG.setStyle("-fx-background-color: #dae7f3;");
-        
-        Text ruleOneContent = new Text("To the bitter end. The player simply has to colour the graph as quickly as possible. The computer does not allow the player to finish until the minimum number of colours has been reached.");
-        TextFlow ruleOneCont = new TextFlow(); 
-                //Retrieving the observable list of the TextFlow Pane 
-        ObservableList list7 = ruleOneCont.getChildren(); 
-        list7.addAll(ruleOneContent);
-
-        Text ruleTwoContent = new Text("Best upper bound in a fixed time frame. The player is given a fixed amount of time and they have to find a colouring with as few colours as possible in the given time. Here is not necessary that the user finds the minimum number of colours.");
-        TextFlow ruleTwoCont = new TextFlow(); 
-                        //Retrieving the observable list of the TextFlow Pane 
-        ObservableList list8 = ruleTwoCont.getChildren(); 
-        list8.addAll(ruleTwoContent);
-
-        Text ruleThreeContent = new Text("Random order. Here the computer generates a random ordering of the vertices and the player has to pick the colours of the vertices in exactly that order. Once the colour of a vertex has been chosen, it cannot be changed again. The goal for the player is to use as few colours as possible.");
-        TextFlow ruleThreeCont = new TextFlow(); 
-                        //Retrieving the observable list of the TextFlow Pane 
-        ObservableList list9 = ruleThreeCont.getChildren(); 
-        list9.addAll(ruleThreeContent);
-        
-        ruleOneCont.setPadding(new Insets(10, 10, 10, 10));
-        ruleTwoCont.setPadding(new Insets(10, 10, 10, 10));
-        ruleThreeCont.setPadding(new Insets(10, 10, 10, 10));
-
-        ruleOneCont.setStyle("-fx-background-color: #dae7f3;");
-        ruleTwoCont.setStyle("-fx-background-color: #dae7f3;");
-        ruleThreeCont.setStyle("-fx-background-color: #dae7f3;");
-        
-        ruleMainCont.add(ruleOneBG, 0, 0);
-        ruleMainCont.add(ruleTwoBG, 0, 1);
-        ruleMainCont.add(ruleThreeBG, 0, 2);
-
-        ruleMainCont.add(ruleOneCont, 1, 0);
-        ruleMainCont.add(ruleTwoCont, 1, 1);
-        ruleMainCont.add(ruleThreeCont, 1, 2);
-        
-        
-        
-        
-        rulesMainCont.getChildren().addAll(rulesTitleCont, rulSubTitleCont, ruleMainCont,backCont2);
-        Scene ruleScene = new Scene(rulesMainCont);
-        
-        
-        Button back3 = new Button("BACK");
-        HBox backCont3 = new HBox();
-        backCont3.getChildren().add(back3);
-        backCont3.setAlignment(Pos.CENTER_RIGHT);
-        backCont3.setPadding(new Insets(50, 50, 50, 50));
-        
-        VBox setMainCont = new VBox();
-        HBox settingsTitleCont = new HBox();
-        settingsTitleCont.setAlignment(Pos.CENTER);
-        Text settingsTitle = new Text("SETTINGS");
-        settingsTitle.setStyle("-fx-font-size: 30px;");
-        settingsTitleCont.getChildren().add(settingsTitle);
-        settingsTitleCont.setPrefHeight(100);
-        HBox setSubTitleCont = new HBox();
-        setSubTitleCont.setAlignment(Pos.CENTER);
-        Text setSubTitle = new Text("This is a sub credit title for showcasing the work of team 8. We are very proud of what we made over the weeks and can't wait for period 3 to finish this shit up.");
-        setSubTitleCont.getChildren().add(setSubTitle);
-        setSubTitleCont.setPrefHeight(50);
-        setSubTitle.setStyle("-fx-font-size: 20px;");
-        
-        Label  labelVertices  = new Label();
-        Slider sliderVertices = new Slider(5, 15, 1);
-        sliderVertices.setBlockIncrement(1);
-        sliderVertices.setMajorTickUnit(1);
-        sliderVertices.setMinorTickCount(0);
-        sliderVertices.setSnapToTicks(true);
-        
-        labelVertices.textProperty().bind(
-                Bindings.format(
-                    "%.2f",
-                    sliderVertices.valueProperty()
-                )
-        );
-        
-        Label  labelEdges  = new Label();
-        Slider sliderEdges = new Slider(5, 10, 1);
-        sliderVertices.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number> ov,
-                Number old_val, Number new_val) {
-                    double numVertices = sliderVertices.getValue();
-                    int max = (int) (numVertices*(numVertices-1)/2);
-                    sliderEdges.setMax(max);
+          public void handle(final ActionEvent e) {
+            RandomGraph rnd= new RandomGraph();
+            adjacency = rnd.createMatrix();
+            int numberofVertices = rnd.getVertices();
+            int numberofEdges = rnd.getEdges();
+            if(Mode==1) {
+              Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
+              test.start(stage);
+            }else if(Mode==2) {
+              Mode2 test = new Mode2(adjacency,numberofVertices,numberofEdges);
+              test.start(stage);
+            } else if (Mode ==3) {
+              Mode3 test = new Mode3(adjacency,numberofVertices,numberofEdges);
+              test.start(stage);
             }
+          }
         });
-        
-        sliderEdges.setBlockIncrement(1);
-        sliderEdges.setMajorTickUnit(1);
-        sliderEdges.setMinorTickCount(0);
-        sliderEdges.setSnapToTicks(true);
-        
-        labelEdges.textProperty().bind(
-                Bindings.format(
-                    "%.2f",
-                    sliderEdges.valueProperty()
-                )
-        );
-        
-        Button createGraph = new Button("GENERATE");
-        
-        createGraph.setOnAction(
-                new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(final ActionEvent e) {
-                       numberofEdges = (int) sliderEdges.getValue();
-                       numberofVertices = (int) sliderVertices.getValue();
-                       RandomGraph randomG = new RandomGraph(numberofVertices,numberofEdges);
-                       adjacency = randomG.createMatrix();
-                       preview test = new preview(adjacency,numberofVertices,numberofEdges);
-                       test.display();
-                    }
-                });
-        Button infoBttn = new Button("INFO");
-        Button openBttn = new Button("OPEN");
-        
-        final FileChooser fileChooser = new FileChooser();
-        
-        
-        openBttn.setOnAction(
-            new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(final ActionEvent e) {
-                    File file = fileChooser.showOpenDialog(primaryStage);
-                    ReadGraphClass G = new ReadGraphClass(file.getAbsolutePath());
-             	   	adjacency = G.ReadFile();
-             	   	numberofEdges = G.getEdges();
-             	   	numberofVertices = G.getVertices();
-             	   	preview test = new preview(adjacency,numberofVertices,numberofEdges);
-                    if (file != null) {
-                       System.out.println("Name of file: " + file);
-                       test.display();
-                    }
-                }
-            });
-        HBox setBtnCont = new HBox(createGraph,infoBttn,openBttn);
-        
-        
-        GridPane settingsMainCont = new GridPane();
-        settingsMainCont.setStyle("-fx-font-size: 18px;");
-        settingsMainCont.setPadding(new Insets(50, 50, 50, 50)); 
-        //Setting the vertical and horizontal gaps between the columns 
-        settingsMainCont.setHgap(150);
-        settingsMainCont.setVgap(20);
-        
-        HBox vertixCtrCont = new HBox(sliderVertices,labelVertices);
-        HBox edgeCtrCont = new HBox(sliderEdges,labelEdges);
-        
-        Label labelVertix = new Label("Number of Vertices: ");
-        Label labelEdge = new Label("Number of Edges: ");
-        
-        settingsMainCont.add(labelVertix, 0, 0);
-        settingsMainCont.add(labelEdge, 1, 0);
-        settingsMainCont.add(vertixCtrCont, 0, 1);
-        settingsMainCont.add(edgeCtrCont, 1, 1);
-        settingsMainCont.add(setBtnCont, 2, 1);
-        
-        
-        HBox centerSlider = new HBox(settingsMainCont);
-        centerSlider.setAlignment(Pos.CENTER);
-        
-        vertixCtrCont.setAlignment(Pos.CENTER);
-        edgeCtrCont.setAlignment(Pos.CENTER);
-        
-        
-        
-        RadioButton radioButton1 = new RadioButton("Circle");
-        radioButton1.setAlignment(Pos.CENTER);
-        RadioButton radioButton2 = new RadioButton("Star");
-        RadioButton radioButton3 = new RadioButton("Special");
-        RadioButton radioButton4 = new RadioButton("Magic");
+      
+      //Give the user hints which coloring is wrong
+      hint = new ToggleButton("HINT");
+      hint.setStyle("-fx-background-color: #D3D3D3");
+      hint.setSelected(false);
+      hint.setOnAction(
+        new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(final ActionEvent e) {
+            if(hint.isSelected()) {
+              hint.setStyle("-fx-background-color: #90EE90");
+              checkedges();
+            }
+            else {
+              hint.setStyle("-fx-background-color: #D3D3D3");
+              for(int p =0; p<edges;p++) {
+                lines[p].setStroke(Color.GRAY);  
+              }
+            }
+          }
+        });
+      
+      //Highlight the connected vertices to the selected one for the user
+      highlight = new ToggleButton("FOCUS");
+      highlight.setStyle("-fx-background-color: #D3D3D3");
+      highlight.setSelected(false);
+      highlight.setOnAction(
+        new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(final ActionEvent e) {
+            if(highlight.isSelected()) {
+              highlight.setStyle("-fx-background-color: #90EE90");
+            }
+            else {
+              highlight.setStyle("-fx-background-color: #D3D3D3");
+            }
+          }
+        });
+      TextField Input = new TextField();
+      Input.setPromptText("amount of solving colors");
 
-        ToggleGroup radioGroup = new ToggleGroup();
+      Button BackTrack = new Button("Solve it");
+      BackTrack.setOnAction(
+        new EventHandler<ActionEvent>() {
+          @Override 
+          public void handle(ActionEvent e) {
+            String amount = Input.getText();
+            if(!amount.equals("")) {
+              pressed = (int) Double.parseDouble(amount)-1;
+              backtracking();
+              checkcolors();
+            }
+          }
+        });
 
-        radioButton1.setToggleGroup(radioGroup);
-        radioButton2.setToggleGroup(radioGroup);
-        radioButton3.setToggleGroup(radioGroup);
-        radioButton4.setToggleGroup(radioGroup);
-        
-        GridPane chooseType = new GridPane();
-        chooseType.setStyle("-fx-font-size: 18px;");
-        chooseType.setPadding(new Insets(50, 50, 50, 50)); 
-        //Setting the vertical and horizontal gaps between the columns 
-        chooseType.setHgap(100);
-        chooseType.add(radioButton1, 0, 0);
-        chooseType.add(radioButton2, 1, 0);
-        chooseType.add(radioButton3, 2, 0);
-        chooseType.add(radioButton4, 3, 0);
-        
-        HBox centerType = new HBox(chooseType);
-        centerType.setAlignment(Pos.CENTER);
-        
-        setMainCont.getChildren().addAll(settingsTitleCont, setSubTitleCont,centerSlider,centerType, backCont3);
-        Scene setScene = new Scene(setMainCont);
-        
-        modeOneContainer.setOnMouseClicked(
-        		new EventHandler<MouseEvent>() {
-        	        @Override
-        	        public void handle(MouseEvent event) {
-        	        	if (numberofVertices>0){
-                       		Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
-                       		test.start(primaryStage);	
-        				}else {
-        					RandomGraph rnd= new RandomGraph();
-        					adjacency = rnd.createMatrix();
-        					numberofVertices = rnd.getVertices();
-        					numberofEdges = rnd.getEdges();
-        					Mode1 test = new Mode1(adjacency,numberofVertices,numberofEdges);
-                       		test.start(primaryStage);
-        				}
-                    }
-  				});
-        
-       
-        
-        credits.setOnAction(e ->{
-          primaryStage.setScene(creditScene);
-          back.setOnAction(f-> {
-            primaryStage.setScene(scene);
-          });
-        });
-        
-        settings.setOnAction(e ->{
-          primaryStage.setScene(setScene);
-          back3.setOnAction(f-> {
-            primaryStage.setScene(scene);
-          });
-        });
-        
-        rules.setOnAction(e ->{
-          primaryStage.setScene(ruleScene);
-          back2.setOnAction(f-> {
-            primaryStage.setScene(scene);
-          });
-        });
-                
-      }
-  	  private Node createSpacer() {
-  		  final Region spacer = new Region();
-  		  // Make it always grow or shrink according to the available space
-  		  HBox.setHgrow(spacer, Priority.ALWAYS);
-  		  return spacer;
-    }	
+      Button btnBack = new Button("BACK");
+      btnBack.setOnAction(
+        new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(final ActionEvent e) {
+            FrontLook homePage = new FrontLook();
+            try {
+              if(Mode == 2) {
+                timeline.stop();
+              }
 
-      public static void main(String[] args) {
-        Application.launch(args);
+              homePage.start(stage);
+            } catch (Exception e1) {
+              e1.printStackTrace();
+            }
+          }
+        });
+      
+      //minimize the available color options to the user
+      Button colourDelete = new Button("MINIMIZE COLOURS");
+      colourDelete.setStyle("-fx-background-color: #D3D3D3");
+      colourDelete.setOnAction(
+        new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(final ActionEvent e) {
+            for(int i = color.length-1;i>=CN;i--)
+              togle[i].setVisible(false);
+          }
+        });
+      
+      //Mode 1 Game mode
+      if(Mode == 2) {
+        HBox timerCont = new HBox();
+        menuBarAlignment.setTop(timerCont);
+        timerLabel.setStyle("-fx-font-size: 2em;");
+        Text clockSecond = new Text(" s");
+        clockSecond.setStyle("-fx-font-size: 2em;");
+        timerCont.getChildren().addAll(timerLabel, clockSecond);
+        timerCont.setPrefHeight(50);
+        timerCont.setAlignment(Pos.CENTER);
+        
+        if (timeline != null) {
+          timeline.stop();
+        }
+        timeSeconds.set(STARTTIME);
+        timeline = new Timeline(new KeyFrame(Duration.seconds(STARTTIME+1), e -> lostPopup()));
+        timeline.getKeyFrames().add(
+          new KeyFrame(Duration.seconds(STARTTIME+1),
+            new KeyValue(timeSeconds, 0)));
+        timeline.playFromStart();
+        
+        // Bind the timerLabel text property to the timeSeconds property
+        timerLabel.textProperty().bind(timeSeconds.asString());
+        
       }
       
+      //add the graph to the root container
+      root.getChildren().addAll(lines);
+      root.getChildren().addAll(arr);
+      layoutAlignment.setRight(menuBar);
+      layoutAlignment.setCenter(root);
+      
+      //Mode 3 Game mode
+      if(Mode==3) {
+    	  root.getChildren().addAll(Text);
+      }
+       
+      layoutAlignment.setRight(menuBar);
+      layoutAlignment.setCenter(root);
+      
+      Text currentColorText = new Text("CURRENT COLOUR");
+      
+      curColCont.setAlignment(Pos.CENTER);
+      curColCont.setPadding(new Insets(10,115,10,115));
+      curColCont.setPrefHeight(70);
+      curColCont.getChildren().addAll(currentColorText, curCol);
+      
+      //Current color - show which color is used atm by the user
+      curCol.setPrefSize(80, 50);
+      curCol.setStyle("-fx-background-color: #" + tg.getSelectedToggle().getUserData().toString().substring(2,8));
+      tg.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+        public void changed(ObservableValue<? extends Toggle> ov,
+          Toggle toggle, Toggle new_toggle) {
+          if(tg.getSelectedToggle() != null) {
+            curCol.setStyle("-fx-background-color: #" + tg.getSelectedToggle().getUserData().toString().substring(2,8));
+          }
+
+        }
+      });
+      
+      //Third row submenu container
+      HBox nextBtnCont = new HBox();
+      nextBtnCont.getChildren().addAll(btnNext,btnBack);
+      nextBtnCont.setPrefHeight(70);
+      nextBtnCont.setAlignment(Pos.CENTER_LEFT);
+      nextBtnCont.setPadding(new Insets(0,50,0,50));
+      nextBtnCont.setSpacing(50);
+      nextBtnCont.setStyle("-fx-background-color: #D3D3D3;");
+      
+      //Second row submenu container
+      HBox hintCont = new HBox();
+      hintCont.getChildren().addAll(hint,colourDelete, highlight);
+      hintCont.setPrefHeight(70);
+      hintCont.setAlignment(Pos.CENTER_LEFT);
+      hintCont.setSpacing(50);
+      hintCont.setPadding(new Insets(10,50,10,50));
+      
+      //First row submenu container
+      HBox solveCont = new HBox();
+      solveCont.getChildren().addAll(BackTrack,Input);
+      solveCont.setPrefHeight(70);
+      solveCont.setAlignment(Pos.CENTER_LEFT);
+      solveCont.setPadding(new Insets(10,50,10,50));
+      solveCont.setStyle("-fx-background-color: #D3D3D3;");
+      
+      subMenus.getChildren().addAll(curColCont,solveCont, hintCont,nextBtnCont);
+      
+      //Creating a scene object 
+      Scene scene = new Scene(layoutAlignment);  
+      
+      scene.getStylesheets().add("application/Main.css");
+      
+      //Setting title to the Stage )
+      stage.setTitle("graph from matrix");
+      
+      //Adding scene to the stage 
+      stage.setScene(scene);
+      
+      Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+      //set Stage boundaries to visible bounds of the main screen
+      stage.setX(primaryScreenBounds.getMinX());
+      stage.setY(primaryScreenBounds.getMinY());
+      stage.setWidth(primaryScreenBounds.getWidth());
+      stage.setHeight(primaryScreenBounds.getHeight());
+      
+      //Displaying the contents of the stage 
+      stage.show();         
+    } 
+    public static ColCircle[] getColCircle() {
+     return vertices;
+   }
+   public dragNode[] getdragNode() {
+     return arr;
+   }
+   public void setCN(int Chron) {
+     CN = Chron;
+   }
+   
+   
+   
+
+    // a draggable dragNode displayed around a point.
+   class dragNode extends Circle {
+    int value;
+    dragNode(Color color, DoubleProperty x, DoubleProperty y, double rad) {
+      super(x.get(), y.get(), rad);
+      setFill(color);
+      setStroke(Color.BLACK);
+      setStrokeWidth(2);
+      setStrokeType(StrokeType.OUTSIDE);
+      x.bind(centerXProperty());
+      y.bind(centerYProperty());
+      enableDrag();
+    }
+
+      // make a node movable by dragging it around with the mouse.
+    private void enableDrag() {
+      final Delta dragDelta = new Delta();
+        //action to perform if mouse gets pressed
+      setOnMousePressed(new EventHandler<MouseEvent>() {
+        @Override public void handle(MouseEvent mouseEvent) {
+          MouseButton button = mouseEvent.getButton();
+          if (button == MouseButton.SECONDARY) {
+              // record a delta distance for the drag and drop operation.
+            dragDelta.x = getCenterX() - mouseEvent.getX();
+            dragDelta.y = getCenterY() - mouseEvent.getY();
+            getScene().setCursor(Cursor.MOVE);
+          }
+          if (button == MouseButton.PRIMARY) {
+            if(Mode<3) {
+              setFill((Color)tg.getSelectedToggle().getUserData());
+              checkcolors();
+              if(hint.isSelected()) checkedges();
+            }else {
+              if(value == currValue) {
+                setFill((Color)tg.getSelectedToggle().getUserData());
+                checkcolors();
+                if(hint.isSelected()) checkedges();
+                if (currValue == Nvertices-1) {
+                  checkcolors();
+                  if(finished) {
+                    winPopup();
+                  } else {
+                    lostPopup();
+                    checkedges();
+                  }
+                }
+                currValue++;
+
+              }else {
+                shakeEffect(root);
+              }
+            }
+          }
+        }
+      });
+      setOnMouseReleased(new EventHandler<MouseEvent>() {
+        @Override public void handle(MouseEvent mouseEvent) {
+          getScene().setCursor(Cursor.HAND);
+        }
+      });
+      setOnMouseDragged(new EventHandler<MouseEvent>() {
+        @Override public void handle(MouseEvent mouseEvent) {
+          MouseButton button = mouseEvent.getButton();
+          if (button == MouseButton.SECONDARY) {
+            double newX = mouseEvent.getX() + dragDelta.x;
+            if (newX > 0 && newX < getScene().getWidth()) {
+              setCenterX(newX);
+            }  
+            double newY = mouseEvent.getY() + dragDelta.y;
+            if (newY > 0 && newY < getScene().getHeight()) {
+              setCenterY(newY);
+            }
+          }
+        }
+      });
+        //action if mouse hovers over a node
+      setOnMouseEntered(new EventHandler<MouseEvent>() {
+        @Override public void handle(MouseEvent mouseEvent) {
+          if (!mouseEvent.isPrimaryButtonDown()) {
+            getScene().setCursor(Cursor.HAND);
+          }
+          if(highlight.isSelected()) {
+            for(int p =0; p<edges;p++) {
+              double xe = lines[p].getEndX();
+              double xb = lines[p].getStartX();
+
+              double ye = lines[p].getEndY();
+              double yb = lines[p].getStartY();
+
+              if((xe==getCenterX() && ye == getCenterY())||(xb==getCenterX() && yb == getCenterY()))
+                lines[p].setStroke(Color.BLUE);
+            }
+          }
+        }
+      });
+        //action if mouse doesn't hover over a node
+      setOnMouseExited(new EventHandler<MouseEvent>() {
+        @Override public void handle(MouseEvent mouseEvent) {
+          if (!mouseEvent.isPrimaryButtonDown()) {
+            getScene().setCursor(Cursor.DEFAULT);
+          }
+          for(int p =0; p<edges;p++) {
+            double xe = lines[p].getEndX();
+            double xb = lines[p].getStartX();         
+            double ye = lines[p].getEndY();
+            double yb = lines[p].getStartY();
+
+            if((xe==getCenterX() && ye == getCenterY())||(xb==getCenterX() && yb == getCenterY())) {
+              lines[p].setStroke(Color.GRAY);
+              lines[p].setStrokeLineCap(StrokeLineCap.ROUND);
+              lines[p].getStrokeDashArray().setAll(10.0, 5.0);
+            }
+            if(hint.isSelected())
+              checkedges();
+          }
+        }
+      });
+    }
+    private class Delta { double x, y; }
+  }
+
+
+  private void checkcolors() {
+    boolean check=true;
+    Set<String> set = new HashSet<String>(); 
+    for(int i = 0; i<Nvertices; i++) {
+      for(int j=0; j<Nvertices; j++){
+        if(adjacency[i][j]==1) {
+          if(arr[i].getFill().equals(arr[j].getFill())||arr[i].getFill().equals(Color.WHITE)) {
+            check = false;
+          }else {
+            set.add(arr[i].getFill().toString());
+          }
+        }
+      }
+    }
+    int size = set.size();
+    if(check && size==CN) finished = true;
+    if(finished) {
+      winPopup();
+    }
+
+  }
+
+  private void checkedges() {
+	    for(int p =0; p<edges;p++) {
+	      lines[p].setStroke(Color.LIGHTGREEN);  
+	    }
+	    for(int i = 0; i<Nvertices; i++) {
+	      for(int j=0; j<Nvertices; j++) {
+	        if(adjacency[i][j]==1) {
+	          for(int p =0; p<edges;p++) {
+	            double xe = lines[p].getEndX();
+	            double xb = lines[p].getStartX();
+
+	            double ye = lines[p].getEndY();
+	            double yb = lines[p].getStartY();
+	            if(arr[i].getFill().equals(Color.WHITE)) {
+	              if((xe==arr[i].getCenterX() && ye == arr[i].getCenterY())||(xb==arr[i].getCenterX() && yb == arr[i].getCenterY())) {
+	                if((xe==arr[j].getCenterX() && ye == arr[j].getCenterY())||(xb==arr[j].getCenterX() && yb == arr[j].getCenterY())) {
+	                  lines[p].setStroke(Color.GRAY);
+	                  lines[p].setStrokeLineCap(StrokeLineCap.ROUND);
+	                  lines[p].getStrokeDashArray().setAll(10.0, 5.0);
+	                }
+	              }
+	            } else if(arr[i].getFill().equals(arr[j].getFill())){
+	              if((xe==arr[i].getCenterX() && ye == arr[i].getCenterY())||(xb==arr[i].getCenterX() && yb == arr[i].getCenterY())) {
+	                if((xe==arr[j].getCenterX() && ye == arr[j].getCenterY())||(xb==arr[j].getCenterX() && yb == arr[j].getCenterY())){
+	                  lines[p].setStroke(Color.RED);
+	                }
+	              }
+	            }
+	          }
+	        }
+	      }
+	    }
+	  }
+      private void backtracking() {
+        for(int i = 0; i<Nvertices;i++){
+          if(colorSol[i]-1<=pressed) {
+            arr[i].setFill(color[colorSol[i]-1]); 
+          }
+          else {arr[i].setFill(Color.WHITE);}
+        }
+      }
+      public void setSol(int[] sol) {
+        this.colorSol = sol;
+      }
+      public void setNodeOrder(int[] Order) {
+        NodeOrder = Order;
+      }
+      public void winPopup() {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Congratulations!");
+        alert.setHeaderText(null);
+        alert.setContentText("Great job! Now try a harder graph!");
+        alert.showAndWait();
+      }
+      public void lostPopup() {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Losing is not cool!");
+        alert.setHeaderText(null);
+        alert.setContentText("You lost! Better luck next time!");
+        alert.show(); 
+      }
+
+      //Create a shake effect when the user not following the rules for Mode 3
+      public static void shakeEffect(Group root) {
+        int duration = 100;
+        int count = 2;
+
+        TranslateTransition transition1 = new TranslateTransition(Duration.millis(duration), root);
+        transition1.setFromX(0);
+        transition1.setToX(-5);
+        transition1.setInterpolator(Interpolator.LINEAR);
+
+        TranslateTransition transition2 = new TranslateTransition(Duration.millis(duration), root);
+        transition2.setFromX(-5);
+        transition2.setToX(5);
+        transition2.setDelay(Duration.millis(duration));
+        transition2.setInterpolator(Interpolator.LINEAR);
+        transition2.setCycleCount(count);
+
+        TranslateTransition transition3 = new TranslateTransition(Duration.millis(duration), root);
+        transition3.setToX(0);
+        transition3.setDelay(Duration.millis((count + 1) * duration));
+        transition3.setInterpolator(Interpolator.LINEAR);
+
+        transition1.play();
+        transition2.play();
+        transition3.play();
+      }
     }

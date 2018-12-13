@@ -1,11 +1,7 @@
 package application;
 
-import java.util.*;
-
 /**
 * A class to create individual objects for every vertex in a graph.
-* @author Celia Busquets Quilis.
-* @version 1.0, 04-12-2018.
 */
 
 public class Vertex {
@@ -53,8 +49,7 @@ public class Vertex {
 	}
 
 	/**
-	* Delet the color of the vertices.
-	* (Maybe more useful in the Graph class or in the Action of the undo button).
+	* Delete the color of the vertices.
 	*/
 	public void reset(){
 	  this.color = 0;

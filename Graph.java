@@ -1,12 +1,10 @@
 package application;
 
-import java.util.*;
-
 /**
 * A class to represent a Graph.
 * The Graph is an array of Vertex objects.
-* @author Celia Busquets Quilis.
-* @version 0.0, 04-12-2018.
+* 
+* 
 */
 
 public class Graph {
